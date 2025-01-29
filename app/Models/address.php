@@ -9,4 +9,9 @@ class address extends Model
 {
     /** @use HasFactory<\Database\Factories\AddressFactory> */
     use HasFactory;
+
+    public function person()
+    {
+        return $this->belongsTo(person::class); //an address belongs to a person
+    }
 }

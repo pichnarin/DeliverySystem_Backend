@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('latitude');
             $table->string('longitude');
             $table->string('payment_method');
-            $table->integer('quantity');
             $table->decimal('amount', 8, 2);
 
             $table->foreign('customer_id')->references('id')->on('people')->onUpdate('cascade')->onDelete('cascade');
