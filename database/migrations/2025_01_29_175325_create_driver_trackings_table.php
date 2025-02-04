@@ -11,20 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('driver_trackings', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->id();
-            $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('driver_id');
+            $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('address_id');
-            $table->enum('status', ['pending', 'on_the_way', 'delivered', 'canceled']);
-            $table->string('final_latitude');
-            $table->string('final_longitude');
-            $table->string('payment_method');
-            $table->decimal('amount', 8, 2);
-
-            $table->foreign('customer_id')->references('id')->on('people')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('latitude');
+            $table->string('longitude');
             $table->foreign('driver_id')->references('id')->on('people')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('address_id')->references('id')->on('addresses')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('driver_trackings');
     }
 };
