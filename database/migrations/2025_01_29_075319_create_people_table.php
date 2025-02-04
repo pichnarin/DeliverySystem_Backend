@@ -18,9 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('role_id');
             $table->string('username')->unique();
             $table->string('email')->unique();
-            $table->string('password');
+            $table->string('password')->bycrypt();
             $table->string('phone')->nullable();
             $table->string('notification_tk')->nullable();
+            $table->string('provider')->nullable();
+            $table->string('provider_id')->nullable();
             $table->timestamps();
 
             $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade')->onDelete('cascade');

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->engine('InnoDB');
             $table->id();
             $table->unsignedBigInteger('customer_id');
+            $table->string('state');
+            $table->string('city');
             $table->string('street');
             $table->string('reference');
             $table->string('latitude');
