@@ -5,13 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class category extends Model
+class Category extends Model
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
     use HasFactory;
 
-    public function food()
-    {
-        return $this->hasMany(food::class); //a category has many food
+    protected $fillable = [
+        'name',
+        'description',
+    ];
+
+    public function foods(){
+        return $this->hasMany(Food::class);
     }
 }

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class role extends Model
+class Role extends Model
 {
     /** @use HasFactory<\Database\Factories\RoleFactory> */
     use HasFactory;
@@ -14,8 +14,8 @@ class role extends Model
         'name',
         'description',
     ];
-    public function people()
-    {
-        return $this->hasMany(person::class); //a role has many people
+
+    public function users(){
+        return $this->belongToMany(Person::class);
     }
 }

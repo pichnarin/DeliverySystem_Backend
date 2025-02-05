@@ -5,13 +5,30 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class address extends Model
+class Address extends Model
 {
     /** @use HasFactory<\Database\Factories\AddressFactory> */
     use HasFactory;
 
-    public function person()
-    {
-        return $this->belongsTo(person::class); //an address belongs to a person
+    protected $fillable = [
+        'customer_id',
+        'state',
+        'city',
+        'street',
+        'reference',
+        'latitude',
+        'longitude'
+    ];
+
+    public function customer(){
+        return $this->belongsTo(Person::class, 'customer_id');
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
+    }
+
+    public function driverTracking(){
+        return $this->hasOne(DriverTracking::class);
     }
 }
