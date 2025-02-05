@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class person extends Model
+class Person extends Model
 {
     /** @use HasFactory<\Database\Factories\PersonFactory> */
     use HasFactory;
@@ -18,19 +18,24 @@ class person extends Model
         'password',
         'phone',
         'notification_tk',
+        'provider',
+        'provider_id'
     ];
-    public function role()
-    {
-        return $this->belongsTo(role::class); //a person belongs to a role
+
+    public function role(){
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function address()
+    public function orders()
     {
-        return $this->hasMany(address::class); //a person has many address
+        return $this->hasMany(Order::class);
     }
 
-    public function order()
-    {
-        return $this->hasMany(order::class); //a person has many order
+    public function addresses(){
+        return $this->hasMany(Address::class);
+    }
+
+    public function deliveryTracking(){
+        return $this->hasOne(DriverTracking::class);
     }
 }

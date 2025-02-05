@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'on_the_way', 'delivered', 'canceled']);
             $table->string('final_latitude');
             $table->string('final_longitude');
-            $table->string('payment_method');
+            $table->enum('payment_method', ['cash', 'credit_card', 'debit_card', 'aba transfer', 'acilida transfer']);
             $table->decimal('amount', 8, 2);
 
             $table->foreign('customer_id')->references('id')->on('people')->onUpdate('cascade')->onDelete('cascade');
