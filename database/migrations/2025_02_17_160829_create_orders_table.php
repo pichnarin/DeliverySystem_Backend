@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('address_id')->constrained('addresses')->onDelete('cascade')->onUpdate('cascade');
     
             $table->enum('status', ['pending', 'processing', 'completed', 'declined'])->default('pending');
-            $table->string('quantity');
+            $table->integer('quantity');
             $table->decimal('total', 10, 2);
             $table->decimal('delivery_fee', 10, 2);
             $table->decimal('tax', 10, 2);

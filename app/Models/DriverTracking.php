@@ -10,6 +10,19 @@ class DriverTracking extends Model
     /** @use HasFactory<\Database\Factories\DriverTrackingFactory> */
     use HasFactory;
 
+    protected $table = 'driver_tracking';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'driver_id',
+        'order_id',
+        'latitude',
+        'longitude',
+        'status',
+        'address_id'
+    ];
+
     public function driver(){
         return $this->belongsTo(User::class);
     }

@@ -11,7 +11,7 @@ class StoreDriverTrackingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,13 @@ class StoreDriverTrackingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'latitude' => ['required', 'string', 'max:255'],
+            'longitude' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:255'],
+            
+            'order_id' => ['required', 'numeric', 'exists:orders,id'],
+            'driver_id' => ['required', 'numeric', 'exists:users,id'],
+            'address_id' => ['required', 'numeric', 'exists:addresses,id'],
         ];
     }
 }

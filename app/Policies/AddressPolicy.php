@@ -13,7 +13,7 @@ class AddressPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class AddressPolicy
      */
     public function view(User $user, Address $address): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class AddressPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class AddressPolicy
      */
     public function update(User $user, Address $address): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class AddressPolicy
      */
     public function delete(User $user, Address $address): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -53,7 +53,7 @@ class AddressPolicy
      */
     public function restore(User $user, Address $address): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -61,6 +61,6 @@ class AddressPolicy
      */
     public function forceDelete(User $user, Address $address): bool
     {
-        return false;
+        return true;
     }
 }
