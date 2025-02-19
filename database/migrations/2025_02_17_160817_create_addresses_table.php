@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('latitude');
             $table->string('reference');
             $table->string('city');
+            // $table->string('street');
             $table->string('state');
             $table->string('zip');
 

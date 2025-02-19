@@ -11,7 +11,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,20 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'quantity' => ['required', 'numeric'],
+            'total' => ['required', 'numeric'],
+            'note' => ['nullable', 'string', 'max:255'],
+            'delivery_fee' => ['required', 'numeric'],
+            'tax' => ['required', 'numeric'],
+            'discount' => ['required', 'numeric'],
+            'payment_method' => ['required', 'string', 'max:255'],
+            'longitude' => ['required', 'string', 'max:255'],
+            'latitude' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', 'max:255'],
+
+            'customer_id' => ['required', 'numeric', 'exists:users,id'],
+            'driver_id' => ['nullable', 'numeric', 'exists:users,id'],
+            'addresse_id' => ['required', 'numeric', 'exists:addresses,id'],
         ];
     }
 }

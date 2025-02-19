@@ -15,7 +15,7 @@ return new class extends Migration
             $table->engine('InnoDB');
             $table->id();
             $table->string('food_name');
-            $table->string('amount');
+            $table->string('quantity');
             $table->string('price');
             $table->string('sub_total');
             $table->string('note')->nullable();

@@ -10,6 +10,20 @@ class OrderDetail extends Model
     /** @use HasFactory<\Database\Factories\OrderDetailFactory> */
     use HasFactory;
 
+    protected $table = 'order_details';
+
+    protected $primaryKey = 'id';
+    
+    protected $fillable = [
+        'food_name',
+        'order_id',
+        'food_id',
+        'quantity',
+        'price',
+        'sub_total',
+        'note'
+    ];
+
     public function order(){
         return $this->belongsTo(Order::class);
     }

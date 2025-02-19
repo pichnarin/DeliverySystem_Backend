@@ -10,6 +10,19 @@ class Address extends Model
     /** @use HasFactory<\Database\Factories\AddressFactory> */
     use HasFactory;
 
+    protected $table = 'addresses';
+
+    protected $primaryKey = 'id';
+    protected $fillable = [
+        'customer_id',
+        'latitude',
+        'longitude',
+        'reference',
+        'city',
+        'state',
+        'zip'
+    ];
+
 
     public function user(){
         return $this->belongsTo(User::class);
