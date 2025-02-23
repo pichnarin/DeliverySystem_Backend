@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('quantity');
             $table->string('price');
             $table->string('sub_total');
-            $table->string('note')->nullable();
 
             $table->foreignId('food_id')->constrained('food')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade')->onUpdate('cascade');

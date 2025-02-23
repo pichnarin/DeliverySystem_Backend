@@ -22,10 +22,11 @@ class StoreDriverTrackingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'latitude' => ['required', 'string', 'max:255'],
-            'longitude' => ['required', 'string', 'max:255'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+
             'status' => ['required', 'string', 'max:255'],
-            
+
             'order_id' => ['required', 'numeric', 'exists:orders,id'],
             'driver_id' => ['required', 'numeric', 'exists:users,id'],
             'address_id' => ['required', 'numeric', 'exists:addresses,id'],

@@ -26,7 +26,6 @@ class UpdateOrderDetailRequest extends FormRequest
             'quantity' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'sub_total' => ['required', 'numeric'],
-            'note' => ['nullable', 'string', 'max:255'],
 
             'order_id' => ['required', 'numeric', 'exists:orders,id'],
             'food_id' => ['required', 'numeric', 'exists:food,id'],

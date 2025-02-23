@@ -22,6 +22,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'order_number' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'numeric'],
             'total' => ['required', 'numeric'],
             'note' => ['nullable', 'string', 'max:255'],
@@ -29,10 +30,11 @@ class UpdateOrderRequest extends FormRequest
             'tax' => ['required', 'numeric'],
             'discount' => ['required', 'numeric'],
             'payment_method' => ['required', 'string', 'max:255'],
-            'longitude' => ['required', 'string', 'max:255'],
-            'latitude' => ['required', 'string', 'max:255'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
             'status' => ['required', 'string', 'max:255'],
-
+            'estimated_delivery_time' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:255'],
             'customer_id' => ['required', 'numeric', 'exists:users,id'],
             'driver_id' => ['nullable', 'numeric', 'exists:users,id'],
             'addresse_id' => ['required', 'numeric', 'exists:addresses,id'],

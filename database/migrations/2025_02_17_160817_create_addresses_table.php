@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('addresses', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->id();
-            $table->string('longitude');
-            $table->string('latitude');
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
             $table->string('reference');
             $table->string('city');
-            // $table->string('street');
+            $table->string('street');
             $table->string('state');
             $table->string('zip');
 

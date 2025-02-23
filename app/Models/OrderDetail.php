@@ -21,7 +21,6 @@ class OrderDetail extends Model
         'quantity',
         'price',
         'sub_total',
-        'note'
     ];
 
     public function order(){

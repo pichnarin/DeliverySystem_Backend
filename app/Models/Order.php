@@ -27,6 +27,8 @@ class Order extends Model
         'tax',
         'longitude',
         'latitude',
+        'note',
+        'estimated_delivery_time',
     ];
 
     public function user(){

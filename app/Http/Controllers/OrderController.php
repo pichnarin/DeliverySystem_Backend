@@ -118,28 +118,6 @@ class OrderController extends Controller
         }
     }
 
-    //get order by status and user id
-    public function getOrderByStatusAndUserId($status, $id)
-    {
-        try{
-            $data = Order::where('status', $status)->where('user_id', $id)->get();
-            return response()->json(['status' => 'success', 'data' => $data], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    //get order by status and driver id
-    public function getOrderByStatusAndDriverId($status, $id)
-    {
-        try{
-            $data = Order::where('status', $status)->where('driver_id', $id)->get();
-            return response()->json(['status' => 'success', 'data' => $data], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
     //get order by address id
     public function getOrderByAddressId($id)
     {
@@ -173,6 +151,5 @@ class OrderController extends Controller
         }
     }
 
-    
 
 }

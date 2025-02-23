@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('driver_trackings', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->id();
-            $table->string('latitude');
-            $table->string('longitude');
-
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
             $table->foreignId('driver_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('order_id')->references('id')->on('orders')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('address_id')->references('id')->on('addresses')->onDelete('cascade')->onUpdate('cascade');
