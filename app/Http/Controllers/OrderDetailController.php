@@ -13,7 +13,12 @@ class OrderDetailController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $data = OrderDetail::all();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -29,7 +34,12 @@ class OrderDetailController extends Controller
      */
     public function store(StoreOrderDetailRequest $request)
     {
-        //
+        try{
+            $data = OrderDetail::create($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 201);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -37,7 +47,12 @@ class OrderDetailController extends Controller
      */
     public function show(OrderDetail $orderDetail)
     {
-        //
+        try {
+            $data = OrderDetail::findOrFail($orderDetail->id);
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -53,14 +68,36 @@ class OrderDetailController extends Controller
      */
     public function update(UpdateOrderDetailRequest $request, OrderDetail $orderDetail)
     {
-        //
+        try{
+            $data = $orderDetail->update($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(OrderDetail $orderDetail)
+    public function destroy($id)
     {
-        //
+        try{
+            $data = OrderDetail::findOrFail($id);
+            $data->delete();
+            return response()->json(['status' => 'success', 'message' => 'Data deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order detail by order id
+    public function getOrderDetailByOrderId($id)
+    {
+        try{
+            $data = OrderDetail::where('order_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }

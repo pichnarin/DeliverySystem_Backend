@@ -13,7 +13,12 @@ class DriverTrackingController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $data = DriverTracking::all();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -29,7 +34,12 @@ class DriverTrackingController extends Controller
      */
     public function store(StoreDriverTrackingRequest $request)
     {
-        //
+        try{
+            $data = DriverTracking::create($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 201);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -37,7 +47,12 @@ class DriverTrackingController extends Controller
      */
     public function show(DriverTracking $driverTracking)
     {
-        //
+        try{
+            $data = DriverTracking::findOrFail($driverTracking->id);
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -53,14 +68,25 @@ class DriverTrackingController extends Controller
      */
     public function update(UpdateDriverTrackingRequest $request, DriverTracking $driverTracking)
     {
-        //
+        try{
+            $data = $driverTracking->update($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DriverTracking $driverTracking)
+    public function destroy($id)
     {
-        //
+        try{
+            $data = DriverTracking::findOrFail($id);
+            $data->delete();
+            return response()->json(['status' => 'success', 'message' => 'Record deleted successfully'], 200);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }

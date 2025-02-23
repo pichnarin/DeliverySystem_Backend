@@ -13,7 +13,12 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        try{
+            $data = Order::all();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -29,7 +34,12 @@ class OrderController extends Controller
      */
     public function store(StoreOrderRequest $request)
     {
-        //
+        try{
+            $data = Order::create($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 201);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -53,14 +63,116 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        //
+        try{
+            $data = $order->update($request->validated());
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Order $order)
+    public function destroy($id)
     {
-        //
+        try{
+            $data = Order::findOrFail($id);
+            $data->delete();
+            return response()->json(['status' => 'success', 'message' => 'Order deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
+
+    //get order by user id
+    public function getOrderByUserId($id)
+    {
+        try{
+            $data = Order::where('user_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by driver id
+    public function getOrderByDriverId($id)
+    {
+        try{
+            $data = Order::where('driver_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by status
+    public function getOrderByStatus($status)
+    {
+        try{
+            $data = Order::where('status', $status)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by status and user id
+    public function getOrderByStatusAndUserId($status, $id)
+    {
+        try{
+            $data = Order::where('status', $status)->where('user_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by status and driver id
+    public function getOrderByStatusAndDriverId($status, $id)
+    {
+        try{
+            $data = Order::where('status', $status)->where('driver_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by address id
+    public function getOrderByAddressId($id)
+    {
+        try{
+            $data = Order::where('address_id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get total amount of all orders
+    public function getTotalAmount()
+    {
+        try{
+            $data = Order::sum('total');
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get order by payment method
+    public function getOrderByPaymentMethod($paymentMethod)
+    {
+        try{
+            $data = Order::where('payment_method', $paymentMethod)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    
+
 }
