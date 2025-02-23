@@ -31,7 +31,8 @@ class User extends Authenticatable
         'status',
         'noti_token',
         'provider',
-        'provider_id'
+        'provider_id',
+        'email_verified_at',
     ];
 
     /**
