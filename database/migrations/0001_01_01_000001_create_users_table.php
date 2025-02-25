@@ -24,9 +24,11 @@ return new class extends Migration
             $table->string('noti_token')->nullable();
             $table->string('provider')->nullable();
             $table->string('provider_id')->nullable();
+            $table->unsignedBigInteger('role_id')->default(
+                DB::table('roles')->where('name', 'customer')->value('id')
+            );
 
-            $table->foreignId('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');
-
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade');
             $table->rememberToken();
             $table->timestamps();
         });
