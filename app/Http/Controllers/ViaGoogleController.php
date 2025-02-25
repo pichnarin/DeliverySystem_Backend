@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Str;
 
 class ViaGoogleController extends Controller
@@ -18,6 +19,8 @@ class ViaGoogleController extends Controller
     {
         $googleUser = Socialite::driver('google')->user();
 
+        $defualtCustomerRoleId = Role::where('name', 'customer')->first()->id;
+
         // dd($token);
 
         $user = User::updateOrCreate(
@@ -29,6 +32,7 @@ class ViaGoogleController extends Controller
                 'password' => bcrypt(Str::random(16)),
                 'provider' => 'google',
                 'email_verified_at' => now(),
+                'role_id' => $defualtCustomerRoleId
             ]
         );
 

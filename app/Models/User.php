@@ -33,6 +33,7 @@ class User extends Authenticatable
         'provider',
         'provider_id',
         'email_verified_at',
+        'role_id',
     ];
 
     /**
