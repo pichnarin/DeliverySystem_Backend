@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\DriverTrackingController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\AddressController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderDetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FoodController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderDetailController;
+use App\Http\Controllers\DriverTrackingController;
 
 
 
@@ -70,3 +71,14 @@ Route::get('drivers/{driver}', [DriverTrackingController::class, 'show']);
 Route::post('drivers', [DriverTrackingController::class, 'store']);
 Route::put('drivers/{driver}', [DriverTrackingController::class, 'update']);
 Route::delete('drivers/{id}', [DriverTrackingController::class, 'destroy']);
+
+//Food routes
+Route::prefix('foods')->group(function () {
+   
+    Route::post('/create', [FoodController::class, 'createFood']);
+    Route::post('/update/{id}', [FoodController::class, 'updateFood']);
+    Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
+    Route::get('/search/{id}', [FoodController::class, 'searchFood']);
+    Route::get('/getAllFoods', [FoodController::class, 'getAllFoods']);
+
+});
