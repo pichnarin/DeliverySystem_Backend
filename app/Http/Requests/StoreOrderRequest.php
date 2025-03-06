@@ -22,22 +22,13 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_number' => ['required', 'string', 'max:255'],
-            'quantity' => ['required', 'numeric'],
-            'total' => ['required', 'numeric'],
-            'note' => ['nullable', 'string', 'max:255'],
-            'delivery_fee' => ['required', 'numeric'],
-            'tax' => ['required', 'numeric'],
-            'discount' => ['required', 'numeric'],
-            'payment_method' => ['required', 'string', 'max:255'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'status' => ['required', 'string', 'max:255'],
-            'estimated_delivery_time' => ['nullable', 'date'],
-            'notes' => ['nullable', 'string', 'max:255'],
-            'customer_id' => ['required', 'numeric', 'exists:users,id'],
-            'driver_id' => ['nullable', 'numeric', 'exists:users,id'],
-            'addresse_id' => ['required', 'numeric', 'exists:addresses,id'],
+            'customer_id' => ['required|numeric|exists:users,id'],
+            'address_id' => ['required|numeric|exists:addresses,id'],
+            'cart_items' => ['required|array'],
+            'cart_items.*.food_id' => ['required|numeric|exists:foods,id'],
+            'cart_items.*food_name' => ['required|string'],
+            'cart_items.*.quantity' => ['required|integer|min:1'],
+            'cart_items.*.price' => ['required|numeric|min:0'],
         ];
     }
 }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('avatar')->nullable();
             $table->string('status')->default('active');
-            $table->string('noti_token')->nullable();
+            $table->string('fcm_token')->nullable();
             $table->string('provider')->nullable();
             $table->string('provider_id')->nullable();
 

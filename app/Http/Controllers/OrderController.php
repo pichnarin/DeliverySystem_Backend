@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\OrderDetail;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -32,12 +35,43 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreOrderRequest $request)
+    public function placeOrder(StoreOrderRequest $request)
     {
+        DB::beginTransaction();
+
         try{
-            $data = Order::create($request->validated());
-            return response()->json(['status' => 'success', 'data' => $data], 201);
-        } catch (\Exception $e) {
+            $orders = Order::create([
+                'order_number' => 'ORD-'.time(),
+                'customer_id' => $request->customer_id,
+                'address_id' => $request->address_id,
+                'status' => 'pending',
+                'quantity' => array_sum(array_column($request->cart_items, 'quantity')),
+                'total' => array_sum(array_map(function($item) {
+                    return $item['quantity'] * $item['price'];
+                }, request('cart_items'))),
+                'delivery_fee' => 2.00,
+                'tax' => 0.00,
+                'discount' => 0.00,
+                'payment_method' => $request->payment_method,
+            ]);
+
+            //add order details
+            foreach ($request->cart_items as $item){
+                OrderDetail::create([
+                    'order_id' => $orders->id,
+                    'food_id' => $item['food_id'],
+                    'food_name' => $item['food_name'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'sub_total' => $item['quantity'] * $item['price'],
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Order created successfully'], 201);
+        }catch (\Exception $e){
+            DB::rollBack();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
@@ -63,12 +97,24 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        try{
-            $data = $order->update($request->validated());
-            return response()->json(['status' => 'success', 'data' => $data], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+        
+    }
+
+    //update order status
+    public function updateOrderStatus(UpdateOrderStatusRequest $request){
+
+        $order = Order::findOrFail($request->order_id);
+        $order->status = $request->status;
+        $order->save();
+
+        //get customer's fcm token
+        $customerToken = $order->user->noti_token;
+        $message = $request->status == "accepted" ? "Your order has been accepted" : "Your order has been rejected";
+
+        //send notification to customer
+        $this->sendFCMNotification($customerToken, $message);
+
+        return response()->json(['status' => 'success', 'message' => 'Order status updated successfully'], 200);
     }
 
     /**

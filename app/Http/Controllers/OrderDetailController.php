@@ -34,12 +34,7 @@ class OrderDetailController extends Controller
      */
     public function store(StoreOrderDetailRequest $request)
     {
-        try{
-            $data = OrderDetail::create($request->validated());
-            return response()->json(['status' => 'success', 'data' => $data], 201);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+        
     }
 
     /**

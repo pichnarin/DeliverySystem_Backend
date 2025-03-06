@@ -30,8 +30,6 @@ class UpdateOrderRequest extends FormRequest
             'tax' => ['required', 'numeric'],
             'discount' => ['required', 'numeric'],
             'payment_method' => ['required', 'string', 'max:255'],
-            'latitude' => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
             'status' => ['required', 'string', 'max:255'],
             'estimated_delivery_time' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:255'],

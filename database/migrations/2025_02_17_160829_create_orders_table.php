@@ -22,11 +22,8 @@ return new class extends Migration {
             $table->enum('status', [
                 'pending', // Order placed, waiting for restaurant approval
                 'accepted', // Restaurant accepted order
-                'preparing', // Restaurant is preparing the order
-                'ready_for_delivery', // Order is ready for pickup
-                'assigned_to_driver', // Driver has been assigned
-                'picked_up', // Driver picked up the order
-                'delivering', // Order is in transit
+                'cooking', // Driver picked up the order
+                'on_the_way', // Driver is on the way to deliver the order
                 'completed', // Order delivered successfully
                 'declined', // Order was rejected
                 'canceled' // Order canceled by customer
@@ -38,10 +35,6 @@ return new class extends Migration {
             $table->decimal('discount', 10, 2);
 
             $table->enum('payment_method', ['ABA', 'PAID OUT', 'UN PAID'])->default('UN PAID');
-
-            $table->decimal('longitude', 10, 7)->nullable();
-            $table->decimal('latitude', 10, 7)->nullable();
-
 
             $table->timestamp('estimated_delivery_time')->nullable();
             $table->text('notes')->nullable();

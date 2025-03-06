@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ViaGoogleController;
+use App\Http\Controllers\AuthController;
 
 
 Route::get('/', function () {
@@ -9,9 +10,14 @@ Route::get('/', function () {
 });
 
 //google auth routes
-Route::get('/auth/google/redirect', [ViaGoogleController::class, 'redirect']);
+// Route::get('/auth/google/redirect', [ViaGoogleController::class, 'redirect']);
 
-Route::get('/auth/google/callback', [ViaGoogleController::class, 'callback']);
+// Route::get('/auth/google/callback', [ViaGoogleController::class, 'callback']);
+
+
+
+
+
 
 require __DIR__ . '/auth.php';
 

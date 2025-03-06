@@ -25,9 +25,7 @@ class Order extends Model
         'payment_method',
         'delivery_fee',
         'tax',
-        'longitude',
-        'latitude',
-        'note',
+        'notes',
         'estimated_delivery_time',
     ];
 
