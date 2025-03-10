@@ -30,19 +30,19 @@ class Order extends Model
     ];
 
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'customer_id');
     }
 
     public function driver_tracking(){
-        return $this->hasOne(DriverTracking::class);
+        return $this->hasOne(DriverTracking::class, 'order_id');
     }
 
     public function order_details(){
-        return $this->hasMany(OrderDetail::class);
+        return $this->hasMany(OrderDetail::class, 'order_id');
     }
 
     public function address(){
-        return $this->belongsTo(Address::class);
+        return $this->belongsTo(Address::class, 'address_id');
     }
 
 }

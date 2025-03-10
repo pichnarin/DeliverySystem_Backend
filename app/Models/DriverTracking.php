@@ -24,15 +24,15 @@ class DriverTracking extends Model
     ];
 
     public function driver(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     public function order(){
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function final_location(){
-        return $this->belongsTo(Address::class);
+        return $this->belongsTo(Address::class, 'address_id');
     }
 
 

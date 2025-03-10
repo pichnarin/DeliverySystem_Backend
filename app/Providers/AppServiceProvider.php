@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
 {
     $this->app->singleton('firebase.auth', function ($app) {
-        return (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-b2f75a1eee.json'))->createAuth();
+        return (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'))->createAuth();
     });
 }
 
@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        // Schema::defaultStringLength(191);
+        Schema::defaultStringLength(191);
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
             return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";

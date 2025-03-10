@@ -86,19 +86,19 @@ class User extends Authenticatable implements JWTSubject
         }
     
         public function role(){
-            return $this->belongsTo(Role::class);
+            return $this->belongsTo(Role::class, 'role_id');
         }
     
         public function orders(){
-            return $this->hasMany(Order::class);
+            return $this->hasMany(Order::class, 'customer_id');
         }
     
         public function addresses(){
-            return $this->hasMany(Address::class);
+            return $this->hasMany(Address::class, 'customer_id');
         }
     
         public function driver(){
-            return $this->hasOne(DriverTracking::class);
+            return $this->hasOne(DriverTracking::class, 'driver_id');
         }
     }
 

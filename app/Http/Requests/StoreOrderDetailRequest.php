@@ -22,7 +22,7 @@ class StoreOrderDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'food_name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'numeric'],
             'price' => ['required', 'numeric'],
             'sub_total' => ['required', 'numeric'],

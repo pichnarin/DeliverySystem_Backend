@@ -26,14 +26,14 @@ class Address extends Model
 
 
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'customer_id');
     }
 
     public function driver_tracking(){
-        return $this->hasOne(DriverTracking::class);
+        return $this->hasOne(DriverTracking::class, 'address_id');
     }
 
     public function order(){
-        return $this->hasOne(Order::class);
+        return $this->hasOne(Order::class, 'address_id');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\OrderDetail;
+use App\Models\Food;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -57,10 +58,11 @@ class OrderController extends Controller
 
             //add order details
             foreach ($request->cart_items as $item){
+                $food = Food::findOrFail($item['food_id']);
                 OrderDetail::create([
                     'order_id' => $orders->id,
                     'food_id' => $item['food_id'],
-                    'food_name' => $item['food_name'],
+                    'name' => $food->name,
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                     'sub_total' => $item['quantity'] * $item['price'],

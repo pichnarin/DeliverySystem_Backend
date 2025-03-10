@@ -15,7 +15,7 @@ class OrderDetail extends Model
     protected $primaryKey = 'id';
     
     protected $fillable = [
-        'food_name',
+        'name',
         'order_id',
         'food_id',
         'quantity',
@@ -24,10 +24,10 @@ class OrderDetail extends Model
     ];
 
     public function order(){
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function food(){
-        return $this->belongsTo(Food::class);
+        return $this->belongsTo(Food::class, 'food_id');
     }
 }

@@ -98,9 +98,25 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $factory = (new Factory)->withServiceAccount(storage_path('app/firebase-credentials.json'));
+        $factory = (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'));
         $this->auth = $factory->createAuth();
     }
+
+    // public function __construct()
+    // {
+    //     // Ensure the Firebase service account file exists
+    //     $serviceAccountPath = storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json');
+
+    //     if (!file_exists($serviceAccountPath)) {
+    //         throw new \Exception("Firebase service account file not found at: {$serviceAccountPath}");
+    //     }
+
+    //     // Initialize Firebase with the service account
+    //     $factory = (new Factory)->withServiceAccount($serviceAccountPath);
+
+    //     // Create the authentication object
+    //     $this->auth = $factory->createAuth();
+    // }
 
     // public function firebaseLogin(Request $request)
     // {

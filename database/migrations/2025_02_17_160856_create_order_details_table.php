@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('order_details', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->id();
-            $table->string('food_name');
-            $table->string('quantity');
-            $table->string('price');
-            $table->string('sub_total');
+            $table->string('name');
+            $table->integer('quantity');
+            $table->decimal('price', 8, 2);
+            $table->decimal('sub_total', 8, 2);
 
             $table->foreignId('food_id')->constrained('food')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade')->onUpdate('cascade');
