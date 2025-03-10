@@ -12,8 +12,6 @@ use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\DriverTrackingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
-
-
 use Google\Client as GoogleClient;
 
 
@@ -25,6 +23,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello World!']);
 });
+
+//Register and login
+Route::post('/register',[AuthController::class, 'register']);
+Route::post('/login',[AuthController::class, 'login']);
 
 //user routes
 Route::get('/users', [UserController::class, 'index']);
@@ -82,23 +84,18 @@ Route::put('/drivers/{driver}', [DriverTrackingController::class, 'update']);
 Route::delete('/drivers/{id}', [DriverTrackingController::class, 'destroy']);
 
 //Food routes
-Route::prefix('foods')->group(function () {
-   
+Route::prefix('foods')->middleware(['auth:api','is_admin'])->group(function () {
     Route::post('/create', [FoodController::class, 'createFood']);
     Route::post('/update/{id}', [FoodController::class, 'updateFood']);
     Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
     Route::get('/search/{id}', [FoodController::class, 'searchFood']);
     Route::get('/getAllFoods', [FoodController::class, 'getAllFoods']);
-
 });
-
-
-
 
 //test notification 
 Route::post('/receivefcmtoken', [NotificationController::class, 'receiveFcmToken']);
 
-
+    
 Route::get('/testnotification', function () {
 
     $fcm = "fcmToken";
