@@ -27,6 +27,7 @@ Route::get('/test', function () {
 //Register and login
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
+Route::post('/logout',[AuthController::class,'logout']);
 
 //user routes
 Route::get('/users', [UserController::class, 'index']);
@@ -95,7 +96,7 @@ Route::prefix('foods')->middleware(['auth:api','is_admin'])->group(function () {
 //test notification 
 Route::post('/receivefcmtoken', [NotificationController::class, 'receiveFcmToken']);
 
-    
+
 Route::get('/testnotification', function () {
 
     $fcm = "fcmToken";
