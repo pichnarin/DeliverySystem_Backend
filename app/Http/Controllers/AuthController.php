@@ -1,106 +1,116 @@
 <?php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Google_Client;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Kreait\Firebase\Factory;
-use Illuminate\Support\Facades\Auth as LaravelAuth;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Kreait\Firebase\Exception\Auth\InvalidToken;
 use Kreait\Firebase\Exception\Auth\RevokedIdToken;
 
-
 class AuthController extends Controller
 {
-
-
     protected $auth;
 
     // User Registration
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:6',
-            'role_id' => 'required|integer|exists:role,id', // Ensure it's an integer and exists in the roles table
-            'username' => 'required|string|unique:users', // Ensure the username is provided
-        ]);
-
-        $name = $request->name;
-        $password = Hash::make($request->password);
-        $username = $request->username;
-        $state = $request->state;
-        $role_id = $request->role_id;
+        // $request->validate([
+        //     'name' => 'required|string',
+        //     'email' => 'required|string|email|unique:users',
+        //     'password' => 'required|string|min:6',
+        //     'role_id' => 'required|integer|exists:roles,id', // Ensure it's an integer and exists in the roles table
+        // ]);
 
         $userImgObj = $request->file('profile_img');
         $path = './assets/user_images';
         $userImg = time() . '_' . $userImgObj->getClientOriginalName();
         $userImgObj->move($path, $userImg);
-
+        
         $user = User::create([
-            'name' => $name,
-            'role_id' => $role_id,
-            'email' => $request->email,
-            'username' => $username,
-            'password' => Hash::make($request->password),
-            'profile_img' => $userImg,
-            'state' => $state
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'password' => Hash::make($request->get('password')),
+            'phone' => $request->get('phone_number'),
+            'avatar' =>  $userImg,
+            'status' => "active",
+            'noti_token' => null,
+            'provider' => null,
+            'provider_id' => null,
+            'email_verified_at' => now(),
+            'role_id' => $request ->get('role_id')
         ]);
 
         // dd($user);
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json(['message' => 'User registered', 'token' => $token], 201);
+        //generate token, the fromUser method mean that it generate token base of User model
+        $token = JWTAuth::fromUser($user);
+        
+        return response()->json([
+            'messsage' => 'Registered successful',
+            'user_data' => $user, 
+            'jwt_token' => $token,
+        ], 201);
     }
 
 
     // User Login
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        // Attempt to find the user by email
-        $user = User::where('email', $request->email)->first();
+        try {
+            if (! $token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Invalid credentials'], 401);
+            }
 
-        // Check if user exists and password matches
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            // Get the authenticated user.
+            $user = JWTAuth::user();
+
+            // return response()->json(compact('token'));
+            return response()->json([
+            'message' => 'login successful',
+            'data' => $user,
+            'token' => $token
+            ]);
+
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not create token'], 500);
         }
-
-        // Create a token for the user using Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
-        ]);
     }
 
 
     // User Logout
     public function logout(Request $request)
-    {
-        $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out']);
+    {   
+        try {
+            // Invalidate the current token
+            JWTAuth::invalidate(JWTAuth::getToken());
+    
+            return response()->json([
+                'message' => 'Successfully logged out',
+            ], 200);
+
+        } catch (\Exception $e) {
+            // If there's an error during invalidation, return a response
+            return response()->json([
+                'message' => 'Error while logging out',
+                'error' => $e->getMessage(), 
+            ], 500);
+        }
     }
 
 
 
-    public function __construct()
-    {
-        $factory = (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'));
-        $this->auth = $factory->createAuth();
-    }
+    // public function __construct()
+    // {
+    //     $factory = (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'));
+    //     $this->auth = $factory->createAuth();
+    // }
 
     // public function __construct()
     // {

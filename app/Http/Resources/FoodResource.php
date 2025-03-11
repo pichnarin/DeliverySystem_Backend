@@ -20,7 +20,7 @@ class FoodResource extends JsonResource
             'category_id' => $this->category_id,
             'price' => $this->price,
             'description' => $this->description,
-            'image' => $this -> food_img        
+            'image' => $this -> image        
         ];
     }
 }
