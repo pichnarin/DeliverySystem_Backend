@@ -37,9 +37,11 @@ class Order extends Model
         return $this->hasOne(DriverTracking::class, 'order_id');
     }
 
-    public function order_details(){
+    public function orderDetails()
+    {
         return $this->hasMany(OrderDetail::class, 'order_id');
     }
+    
 
     public function address(){
         return $this->belongsTo(Address::class, 'address_id');

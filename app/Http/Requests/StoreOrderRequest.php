@@ -22,13 +22,13 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_id' => ['required','numeric','exists:users,id'],
-            'address_id' => ['required','numeric','exists:addresses,id'],
-            'cart_items' => ['required','array'],
-            'cart_items.*.food_id' => ['required','numeric','exists:food,id'],
-            'cart_items.*name' => ['required','string'],
-            'cart_items.*.quantity' => ['required','integer','min:1'],
-            'cart_items.*.price' => ['required','numeric','min:0'],
+            'customer_id' => ['required', 'numeric', 'exists:users,id'],
+            'address_id' => ['required', 'numeric', 'exists:addresses,id'],
+            'cart_items' => ['required', 'array'],
+            'cart_items.*.food_id' => ['required', 'numeric', 'exists:food,id'],
+            'cart_items.*.name' => ['required', 'string'],
+            'cart_items.*.quantity' => ['required', 'integer', 'min:1'],
+            'cart_items.*.price' => ['required', 'numeric', 'min:0'],
         ];
     }
 }

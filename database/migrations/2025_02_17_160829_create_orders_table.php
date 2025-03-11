@@ -29,12 +29,12 @@ return new class extends Migration {
                 'canceled' // Order canceled by customer
             ])->default('pending');
             $table->integer('quantity');
-            $table->decimal('total', 10, 2);
-            $table->decimal('delivery_fee', 10, 2);
-            $table->decimal('tax', 10, 2);
-            $table->decimal('discount', 10, 2);
+            $table->decimal('total', 10, 2)->default(0);
+            $table->decimal('delivery_fee', 10, 2)->default(0);
+            $table->decimal('tax', 10, 2)->default(0);
+            $table->decimal('discount', 10, 2)->default(0);
 
-            $table->enum('payment_method', ['ABA', 'PAID OUT', 'UN PAID'])->default('UN PAID');
+            $table->enum('payment_method', ['aba', 'paid_out', 'un_paid'])->default('un_paid');
 
             $table->timestamp('estimated_delivery_time')->nullable();
             $table->text('notes')->nullable();

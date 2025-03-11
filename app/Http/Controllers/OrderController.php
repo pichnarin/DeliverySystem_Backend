@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Models\OrderDetail;
 use App\Models\Food;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -17,7 +18,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        try{
+        try {
             $data = Order::all();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -36,47 +37,126 @@ class OrderController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function placeOrder(StoreOrderRequest $request)
+
+
+    // public function storeOrder(StoreOrderRequest $request)
+    // {
+    //     // Start transaction
+    //     DB::beginTransaction();
+
+    //     try {
+    //         // Create order
+    //         $order = Order::create([
+    //             'customer_id' => $request->customer_id,
+    //             'address_id' => $request->address_id,
+    //             'order_number' => uniqid('ORDER-'),
+    //             'status' => 'pending', // Set initial status to 'pending'
+    //             'total' => 0, // Will be calculated later
+    //             'delivery_fee' => 5.00, // You can adjust this
+    //             'tax' => 0, // Add tax logic if needed
+    //             'discount' => 0, // Add discount logic if needed
+    //         ]);
+
+    //         $total = 0;
+
+    //         // Loop through cart items and store them in order_details table
+    //         foreach ($request->cart_items as $item) {
+    //             $food = Food::findOrFail($item['food_id']);
+    //             $subTotal = $food->price * $item['quantity'];
+
+    //             // Create order detail
+    //             OrderDetail::create([
+    //                 'order_id' => $order->id,
+    //                 'food_id' => $item['food_id'],
+    //                 'name' => $item['name'],
+    //                 'quantity' => $item['quantity'],
+    //                 'price' => $food->price,
+    //                 'sub_total' => $subTotal,
+    //             ]);
+
+    //             // Update total for the order
+    //             $total += $subTotal;
+    //         }
+
+    //         // Update the total amount for the order
+    //         $order->update([
+    //             'total' => $total,
+    //         ]);
+
+    //         // Commit the transaction
+    //         DB::commit();
+
+    //         return response()->json(['message' => 'Order created successfully', 'order' => $order], 201);
+
+    //     } catch (\Exception $e) {
+    //         // Rollback the transaction if there's an error
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Error creating order: ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+    public function placeOrder(Request $request)
     {
         DB::beginTransaction();
 
-        try{
-            $orders = Order::create([
-                'order_number' => 'ORD-'.time(),
-                'customer_id' => $request->customer_id,
-                'address_id' => $request->address_id,
-                'status' => 'pending',
-                'quantity' => array_sum(array_column($request->cart_items, 'quantity')),
-                'total' => array_sum(array_map(function($item) {
-                    return $item['quantity'] * $item['price'];
-                }, request('cart_items'))),
-                'delivery_fee' => 2.00,
-                'tax' => 0.00,
-                'discount' => 0.00,
-                'payment_method' => $request->payment_method,
+        try {
+            $validated = $request->validate([
+                'customer_id' => 'required|exists:users,id',
+                'address_id' => 'required|exists:addresses,id',
+                'food' => 'required|array',
+                'food.*.food_id' => 'required|exists:food,id',
+                'food.*.quantity' => 'required|integer|min:1',
             ]);
 
-            //add order details
-            foreach ($request->cart_items as $item){
-                $food = Food::findOrFail($item['food_id']);
+            // Create Order
+            $order = Order::create([
+                'order_number' => strtoupper(uniqid('ORD')),
+                'customer_id' => $validated['customer_id'],
+                'address_id' => $validated['address_id'],
+                'status' => 'pending',
+                'quantity' => array_sum(array_column($validated['food'], 'quantity')),
+            ]);
+
+            $total = 0;
+
+            foreach ($validated['food'] as $item) {
+                $food = Food::where('id', $item['food_id'])->first();
+                if (!$food) {
+                    throw new \Exception("Food item not found.");
+                }
+
+                $subTotal = $food->price * $item['quantity'];
+
                 OrderDetail::create([
-                    'order_id' => $orders->id,
+                    'order_id' => $order->id,
                     'food_id' => $item['food_id'],
                     'name' => $food->name,
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'sub_total' => $item['quantity'] * $item['price'],
+                    'price' => $food->price,
+                    'sub_total' => $subTotal,
                 ]);
+
+                $total += $subTotal;
             }
+
+            $order->update([
+                'total' => floatval($total),
+                'delivery_fee' => floatval(5),
+                'tax' => floatval($total * 0.1),
+            ]);
 
             DB::commit();
 
-            return response()->json(['status' => 'success', 'message' => 'Order created successfully'], 201);
-        }catch (\Exception $e){
+            return response()->json([
+                'message' => 'Order placed successfully',
+                'order' => $order->load('orderDetails') // Load related order details
+            ], 201);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Error placing order: ' . $e->getMessage()], 500);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -99,11 +179,12 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, Order $order)
     {
-        
+
     }
 
     //update order status
-    public function updateOrderStatus(UpdateOrderStatusRequest $request){
+    public function updateOrderStatus(UpdateOrderStatusRequest $request)
+    {
 
         $order = Order::findOrFail($request->order_id);
         $order->status = $request->status;
@@ -124,7 +205,7 @@ class OrderController extends Controller
      */
     public function destroy($id)
     {
-        try{
+        try {
             $data = Order::findOrFail($id);
             $data->delete();
             return response()->json(['status' => 'success', 'message' => 'Order deleted successfully'], 200);
@@ -136,7 +217,7 @@ class OrderController extends Controller
     //get order by user id
     public function getOrderByUserId($id)
     {
-        try{
+        try {
             $data = Order::where('user_id', $id)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -147,7 +228,7 @@ class OrderController extends Controller
     //get order by driver id
     public function getOrderByDriverId($id)
     {
-        try{
+        try {
             $data = Order::where('driver_id', $id)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -158,7 +239,7 @@ class OrderController extends Controller
     //get order by status
     public function getOrderByStatus($status)
     {
-        try{
+        try {
             $data = Order::where('status', $status)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -169,7 +250,7 @@ class OrderController extends Controller
     //get order by address id
     public function getOrderByAddressId($id)
     {
-        try{
+        try {
             $data = Order::where('address_id', $id)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -180,7 +261,7 @@ class OrderController extends Controller
     //get total amount of all orders
     public function getTotalAmount()
     {
-        try{
+        try {
             $data = Order::sum('total');
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -191,7 +272,7 @@ class OrderController extends Controller
     //get order by payment method
     public function getOrderByPaymentMethod($paymentMethod)
     {
-        try{
+        try {
             $data = Order::where('payment_method', $paymentMethod)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
