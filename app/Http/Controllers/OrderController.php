@@ -160,7 +160,7 @@ class OrderController extends Controller
     //get order base on input status
     public function getOrderByStatus($status)
     {
-        $validStatuses = ['pending', 'accepted', 'preparing', 'ready', 'pick_up', 'delivering', 'completed', 'declined', 'canceled'];
+        $validStatuses = ['pending', 'accepted', 'preparing', 'ready', 'picked_up', 'delivering', 'completed', 'declined', 'canceled'];
 
         if (!in_array($status, $validStatuses)) {
             return response()->json(['status' => 'error', 'message' => 'Invalid status'], 400);
@@ -182,7 +182,7 @@ class OrderController extends Controller
 
         try {
             $validated = $request->validate([
-                'status' => 'required|in:pending,accepted,preparing,ready,pick_up,delivering,completed,declined,canceled'
+                'status' => 'required|in:pending,accepted,preparing,ready,picked_up,delivering,completed,declined,canceled'
             ]);
 
             $order = Order::findOrFail($orderId);
