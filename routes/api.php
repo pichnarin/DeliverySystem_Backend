@@ -91,7 +91,7 @@ Route::delete('/drivers/{id}', [DriverTrackingController::class, 'destroy']);
 Route::get('/foods/getAllFoods', [FoodController::class, 'getAllFoods']);
 
 // Food routes
-Route::prefix('foods')->middleware(['auth:api','is_driver'])->group(function () {
+Route::prefix('foods')->middleware(['auth:api','is_customer'])->group(function () {
     Route::post('/create', [FoodController::class, 'createFood']);
     Route::post('/update/{id}', [FoodController::class, 'updateFood']);
     Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
