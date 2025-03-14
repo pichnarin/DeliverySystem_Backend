@@ -106,11 +106,11 @@ class AuthController extends Controller
 
 
 
-    // public function __construct()
-    // {
-    //     $factory = (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'));
-    //     $this->auth = $factory->createAuth();
-    // }
+    public function __construct()
+    {
+        $factory = (new Factory)->withServiceAccount(storage_path('app/pizzasprintnotification-firebase-adminsdk-fbsvc-880451d579.json'));
+        $this->auth = $factory->createAuth();
+    }
 
     // public function __construct()
     // {

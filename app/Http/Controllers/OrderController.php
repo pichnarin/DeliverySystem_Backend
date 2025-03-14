@@ -157,6 +157,61 @@ class OrderController extends Controller
         }
     }
 
+    //get order base on input status
+    public function getOrderByStatus($status)
+    {
+        $validStatuses = ['pending', 'accepted', 'preparing', 'ready', 'pick_up', 'delivering', 'completed', 'declined', 'canceled'];
+
+        if (!in_array($status, $validStatuses)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid status'], 400);
+        }
+
+        try {
+            $data = Order::where('status', $status)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+    //admin aprrove or reject order
+    public function updateOrderStatus(Request $request, $orderId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $validated = $request->validate([
+                'status' => 'required|in:pending,accepted,preparing,ready,pick_up,delivering,completed,declined,canceled'
+            ]);
+
+            $order = Order::findOrFail($orderId);
+
+            // Update status
+            $order->status = $request->status;
+            $order->save();
+
+            DB::commit();
+
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order status updated successfully',
+                'order' => $order
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Return error response
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+
 
     /**
      * Display the specified resource.
@@ -183,22 +238,22 @@ class OrderController extends Controller
     }
 
     //update order status
-    public function updateOrderStatus(UpdateOrderStatusRequest $request)
-    {
+    // public function updateOrderStatus(UpdateOrderStatusRequest $request)
+    // {
 
-        $order = Order::findOrFail($request->order_id);
-        $order->status = $request->status;
-        $order->save();
+    //     $order = Order::findOrFail($request->order_id);
+    //     $order->status = $request->status;
+    //     $order->save();
 
-        //get customer's fcm token
-        $customerToken = $order->user->noti_token;
-        $message = $request->status == "accepted" ? "Your order has been accepted" : "Your order has been rejected";
+    //     //get customer's fcm token
+    //     $customerToken = $order->user->noti_token;
+    //     $message = $request->status == "accepted" ? "Your order has been accepted" : "Your order has been rejected";
 
-        //send notification to customer
-        $this->sendFCMNotification($customerToken, $message);
+    //     //send notification to customer
+    //     $this->sendFCMNotification($customerToken, $message);
 
-        return response()->json(['status' => 'success', 'message' => 'Order status updated successfully'], 200);
-    }
+    //     return response()->json(['status' => 'success', 'message' => 'Order status updated successfully'], 200);
+    // }
 
     /**
      * Remove the specified resource from storage.
@@ -230,17 +285,6 @@ class OrderController extends Controller
     {
         try {
             $data = Order::where('driver_id', $id)->get();
-            return response()->json(['status' => 'success', 'data' => $data], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    //get order by status
-    public function getOrderByStatus($status)
-    {
-        try {
-            $data = Order::where('status', $status)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);

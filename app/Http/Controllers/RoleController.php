@@ -6,6 +6,8 @@ use App\Models\Role;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\RoleChangeRequest;
 
 class RoleController extends Controller
 {
@@ -76,22 +78,22 @@ class RoleController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateRoleRequest $request, Role $role)
-{
-    try {
-        // No need to find the role since it's already injected
-        $role->update($request->validated());
+    {
+        try {
+            // No need to find the role since it's already injected
+            $role->update($request->validated());
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $role
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 404);
+            return response()->json([
+                'status' => 'success',
+                'data' => $role
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 404);
+        }
     }
-}
 
 
 

@@ -101,6 +101,10 @@ class User extends Authenticatable implements JWTSubject
         public function driver(){
             return $this->hasOne(DriverTracking::class, 'driver_id');
         }
+
+        public function roleChangeRequest(){
+            return $this->hasOne(RoleChangeRequest::class, 'user_id');
+        }
     }
 
 

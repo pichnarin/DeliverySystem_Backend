@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NotificationController;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FoodController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\DriverTrackingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RoleChangeController;
 use Google\Client as GoogleClient;
 
 
@@ -40,6 +42,12 @@ Route::post('/roles', [RoleController::class, 'store']);
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
 Route::put('/roles/{role}', [RoleController::class, 'update']);
 
+Route::post('/requestRoleChange', [RoleChangeController::class, 'requestRoleChange']);
+
+Route::get('/getRoleChangeRequest', [RoleChangeController::class, 'viewRoleChangeRequests']);
+Route::put('/approveRoleChangeRequest/{id}', [RoleChangeController::class, 'approveRoleChange']);
+Route::put('/rejectRoleChangeRequest/{id}', [RoleChangeController::class, 'denyRoleChange']);
+
 //categories routes
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
@@ -58,16 +66,11 @@ Route::get('addresses/{id}', [AddressController::class, 'getAddressByUserId']);
 //orders routes
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/rders/{order}', [OrderController::class, 'show']);
-Route::post('/orders', [OrderController::class, 'placeOrder']);
-// Route::put('/orders/{order}', [OrderController::class, 'update']);
-Route::put('/orders/update-status/{order}', [OrderController::class, 'updateOrderStatus']);
-Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-Route::get('/orderByUserId/{id}', [OrderController::class, 'getOrderByUserId']);
-Route::get('/orderByDriverId/{id}', [OrderController::class, 'getOrderByDriverId']);
-Route::get('/orderByStatus/{status}', [OrderController::class, 'getOrderByStatus']);
-Route::get('/orderByAddressId/{id}', [OrderController::class, 'getOrderByAddressId']); 
-Route::get('/orderTotalAmount', [OrderController::class, 'getTotalAmount']);
-Route::get('/orderByPaymentMethod/{payment_method}', [OrderController::class, 'getOrderByPaymentMethod']);
+Route::post('/orders/place-orders', [OrderController::class, 'placeOrder']);
+Route::get('/orders/status/{status}', [OrderController::class, 'getOrderByStatus']);
+Route::put('/orders/{orderId}/updateStatus', [OrderController::class, 'updateOrderStatus']);
+
+
 
 //order details routes
 Route::get('/orderDetails', [OrderDetailController::class, 'index']);
