@@ -27,9 +27,9 @@ Route::get('/test', function () {
 });
 
 //Register and login
-Route::post('/register',[AuthController::class, 'register']);
-Route::post('/login',[AuthController::class, 'login']);
-Route::post('/logout',[AuthController::class,'logout']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
 //user routes
 Route::get('/users', [UserController::class, 'index']);
@@ -37,7 +37,7 @@ Route::get('/users/{user}', [UserController::class, 'show']);
 
 //roles routes
 Route::get('/roles', [RoleController::class, 'index']);
-Route::get( '/roles/{role}', [RoleController::class, 'show']);
+Route::get('/roles/{role}', [RoleController::class, 'show']);
 Route::post('/roles', [RoleController::class, 'store']);
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
 Route::put('/roles/{role}', [RoleController::class, 'update']);
@@ -87,13 +87,16 @@ Route::post('/drivers', [DriverTrackingController::class, 'store']);
 Route::put('/drivers/{driver}', [DriverTrackingController::class, 'update']);
 Route::delete('/drivers/{id}', [DriverTrackingController::class, 'destroy']);
 
-//Food routes
+
+Route::get('/foods/getAllFoods', [FoodController::class, 'getAllFoods']);
+
+// Food routes
 Route::prefix('foods')->middleware(['auth:api','is_admin'])->group(function () {
     Route::post('/create', [FoodController::class, 'createFood']);
     Route::post('/update/{id}', [FoodController::class, 'updateFood']);
     Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
     Route::get('/search/{id}', [FoodController::class, 'searchFood']);
-    Route::get('/getAllFoods', [FoodController::class, 'getAllFoods']);
+   
 });
 
 //test notification 
@@ -114,7 +117,7 @@ Route::get('/testnotification', function () {
     $client->setScopes(['https://www.googleapis.com/auth/firebase.messaging']);
     $client->refreshTokenWithAssertion();
     $token = $client->getAccessToken();
-   
+
     $accessToken = $token['access_token'];
 
     $header = [
@@ -135,7 +138,7 @@ Route::get('/testnotification', function () {
     $payload = json_encode($data);
 
     $ch = curl_init();
-    
+
     curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/v1/projects/pizzanotification-2bcd3/messages:send');
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
     curl_setopt($ch, CURLOPT_POST, true);

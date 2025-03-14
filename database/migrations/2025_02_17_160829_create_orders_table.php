@@ -22,13 +22,9 @@ return new class extends Migration {
             $table->enum('status', [
                 'pending', // Order placed, waiting for restaurant approval
                 'accepted', // Restaurant accepted order
-                'preparing', // Restaurant preparing the order
-                'ready', // Order is ready for pickup
-                'picked_up', // Order picked up by driver
                 'delivering', // Order is out for delivery
                 'completed', // Order delivered successfully
                 'declined', // Order was rejected
-                'canceled' // Order canceled by customer
             ])->default('pending');
             $table->integer('quantity');
             $table->decimal('total', 10, 2)->default(0);

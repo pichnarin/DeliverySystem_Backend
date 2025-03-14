@@ -128,7 +128,10 @@ class OrderController extends Controller
                 $subTotal = $food->price * $item['quantity'];
 
                 OrderDetail::create([
-                    'order_id' => $order->id,
+                    'o
+                    
+                    
+                    rder_id' => $order->id,
                     'food_id' => $item['food_id'],
                     'name' => $food->name,
                     'quantity' => $item['quantity'],
@@ -160,7 +163,7 @@ class OrderController extends Controller
     //get order base on input status
     public function getOrderByStatus($status)
     {
-        $validStatuses = ['pending', 'accepted', 'preparing', 'ready', 'picked_up', 'delivering', 'completed', 'declined', 'canceled'];
+        $validStatuses = ['pending', 'accepted', 'preparing', 'delivering', 'completed', 'declined'];
 
         if (!in_array($status, $validStatuses)) {
             return response()->json(['status' => 'error', 'message' => 'Invalid status'], 400);
@@ -182,7 +185,7 @@ class OrderController extends Controller
 
         try {
             $validated = $request->validate([
-                'status' => 'required|in:pending,accepted,preparing,ready,picked_up,delivering,completed,declined,canceled'
+                'status' => 'required|in:pending,accepted,delivering,completed,declined'
             ]);
 
             $order = Order::findOrFail($orderId);
