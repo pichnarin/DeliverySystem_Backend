@@ -21,12 +21,11 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello World!']);
 });
 
-//Register and login
+//Register and login (admin - customer - driver) - admin's API
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
@@ -36,11 +35,13 @@ Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 
 //roles routes
-Route::get('/roles', [RoleController::class, 'index']);
-Route::get('/roles/{role}', [RoleController::class, 'show']);
-Route::post('/roles', [RoleController::class, 'store']);
-Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
-Route::put('/roles/{role}', [RoleController::class, 'update']);
+Route::prefix('roles')->group(function(){
+    Route::get('/', [RoleController::class, 'index']);
+    Route::get('/{role}', [RoleController::class, 'show']);
+    Route::post('', [RoleController::class, 'store']);
+    Route::delete('/{id}', [RoleController::class, 'destroy']);
+    Route::put('/{role}', [RoleController::class, 'update']);
+});
 
 Route::post('/requestRoleChange', [RoleChangeController::class, 'requestRoleChange']);
 
@@ -49,11 +50,13 @@ Route::put('/approveRoleChangeRequest/{id}', [RoleChangeController::class, 'appr
 Route::put('/rejectRoleChangeRequest/{id}', [RoleChangeController::class, 'denyRoleChange']);
 
 //categories routes
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{category}', [CategoryController::class, 'show']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categories/{category}', [CategoryController::class, 'update']);
-Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+Route::prefix('categories')->group(function(){
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/{category}', [CategoryController::class, 'show']);
+    Route::post('/', [CategoryController::class, 'store']);
+    Route::put('/{category}', [CategoryController::class, 'update']);
+    Route::delete('/{category}', [CategoryController::class, 'destroy']);
+});
 
 //addresses routes
 Route::get('/addresses', [AddressController::class, 'index']);
@@ -64,12 +67,13 @@ Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
 Route::get('addresses/{id}', [AddressController::class, 'getAddressByUserId']);
 
 //orders routes
-Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/rders/{order}', [OrderController::class, 'show']);
-Route::post('/orders/place-orders', [OrderController::class, 'placeOrder']);
-Route::get('/orders/status/{status}', [OrderController::class, 'getOrderByStatus']);
-Route::put('/orders/{orderId}/updateStatus', [OrderController::class, 'updateOrderStatus']);
-
+Route::prefix('orders')->group(function(){
+    Route::get('/', [OrderController::class, 'index']);
+    Route::get('/{order}', [OrderController::class, 'show']);
+    Route::post('/place-orders', [OrderController::class, 'placeOrder']);
+    Route::get('/status/{status}', [OrderController::class, 'getOrderByStatus']);
+    Route::put('/{orderId}/updateStatus', [OrderController::class, 'updateOrderStatus']);
+});
 
 
 //order details routes
@@ -81,17 +85,19 @@ Route::delete('/orderDetails/{id}', [OrderDetailController::class, 'destroy']);
 Route::get('/orderDetailsByOrderId/{id}', [OrderDetailController::class, 'getOrderDetailsByOrderId']);
 
 //driver routes
-Route::get('/drivers', [DriverTrackingController::class, 'index']);
-Route::get('/drivers/{driver}', [DriverTrackingController::class, 'show']);
-Route::post('/drivers', [DriverTrackingController::class, 'store']);
-Route::put('/drivers/{driver}', [DriverTrackingController::class, 'update']);
-Route::delete('/drivers/{id}', [DriverTrackingController::class, 'destroy']);
+Route::prefix('drivers')->group(function(){
+    Route::get('/', [DriverTrackingController::class, 'index']);
+    Route::get('/{driver}', [DriverTrackingController::class, 'show']);
+    Route::post('/', [DriverTrackingController::class, 'store']);
+    Route::put('/{driver}', [DriverTrackingController::class, 'update']);
+    Route::delete('/{id}', [DriverTrackingController::class, 'destroy']);
+});
 
 
 Route::get('/foods/getAllFoods', [FoodController::class, 'getAllFoods']);
 
 // Food routes
-Route::prefix('foods')->middleware(['auth:api','is_customer'])->group(function () {
+Route::prefix('foods')->middleware(['auth:api','is_admin'])->group(function () {
     Route::post('/create', [FoodController::class, 'createFood']);
     Route::post('/update/{id}', [FoodController::class, 'updateFood']);
     Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
