@@ -21,7 +21,7 @@ class DriverMiddleware
             }
 
             // If not an admin, return a forbidden response
-            return response()->json(['message' => 'Forbidden'], 403);
+            return response()->json(['message' => 'Forbidden, you are not authenticated to use this route'], 403);
 
         } catch (JWTException $e) {
             // If the token is invalid or expired, return a response
