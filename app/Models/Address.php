@@ -33,7 +33,7 @@ class Address extends Model
         return $this->hasOne(DriverTracking::class, 'address_id');
     }
 
-    public function order(){
-        return $this->hasOne(Order::class, 'address_id');
+    public function orders(){
+        return $this->hasMany(Order::class, 'address_id');
     }
 }

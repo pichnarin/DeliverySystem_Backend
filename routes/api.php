@@ -34,6 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 //user routes
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
+Route::get('/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
 
 //roles routes
 Route::get('/roles', [RoleController::class, 'index']);
@@ -69,8 +70,9 @@ Route::get('/rders/{order}', [OrderController::class, 'show']);
 Route::post('/orders/place-orders', [OrderController::class, 'placeOrder']);
 Route::get('/orders/status/{status}', [OrderController::class, 'getOrderByStatus']);
 Route::put('/orders/{orderId}/updateStatus', [OrderController::class, 'updateOrderStatus']);
-
-
+Route::put('/orders/assign-driver/{id}', [OrderController::class, 'assignDriver']);
+Route::put('/orders/complete-order/{id}', [OrderController::class, 'completeOrder']);
+Route::get('/orders/order-details', [OrderController::class, 'getOrderDetails']);
 
 //order details routes
 Route::get('/orderDetails', [OrderDetailController::class, 'index']);

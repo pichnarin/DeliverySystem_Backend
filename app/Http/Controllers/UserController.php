@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log; // for logging errors
+use Illuminate\Support\Facades\DB; // for database queries
 
 class UserController extends Controller
 {
@@ -45,6 +46,29 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to fetch user. Please try again later.'
+            ], 500);
+        }
+    }
+
+    //get user by role name
+    public function getUserByRole($role)
+    {
+        try {
+            $users = DB::table('users')
+                ->join('roles', 'users.role_id', '=', 'roles.id')
+                ->where('roles.name', $role)
+                ->select('users.*')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $users
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching users: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch users. Please try again later.'
             ], 500);
         }
     }

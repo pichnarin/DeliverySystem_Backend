@@ -9,7 +9,9 @@ use App\Http\Requests\UpdateOrderRequest;
 use App\Models\OrderDetail;
 use App\Models\Food;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class OrderController extends Controller
 {
@@ -128,10 +130,7 @@ class OrderController extends Controller
                 $subTotal = $food->price * $item['quantity'];
 
                 OrderDetail::create([
-                    'o
-                    
-                    
-                    rder_id' => $order->id,
+                    'order_id' => $order->id,
                     'food_id' => $item['food_id'],
                     'name' => $food->name,
                     'quantity' => $item['quantity'],
@@ -163,7 +162,7 @@ class OrderController extends Controller
     //get order base on input status
     public function getOrderByStatus($status)
     {
-        $validStatuses = ['pending', 'accepted', 'preparing', 'delivering', 'completed', 'declined'];
+        $validStatuses = ['pending', 'accepted', 'delivering', 'completed', 'declined'];
 
         if (!in_array($status, $validStatuses)) {
             return response()->json(['status' => 'error', 'message' => 'Invalid status'], 400);
@@ -185,7 +184,7 @@ class OrderController extends Controller
 
         try {
             $validated = $request->validate([
-                'status' => 'required|in:pending,accepted,delivering,completed,declined'
+                'status' => 'required|in:pending,accepted,declined,delivering,completed'
             ]);
 
             $order = Order::findOrFail($orderId);
@@ -213,6 +212,139 @@ class OrderController extends Controller
             ], 400);
         }
     }
+
+    public function assignDriver(Request $request, $id)
+    {
+        // Validate driver_id
+        $request->validate([
+            'driver_id' => 'required|integer'
+        ]);
+
+        // Find order
+        $order = Order::findOrFail($id);
+
+        // Order status check
+        if ($order->status != 'accepted') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order status must be accepted before assigning a driver.'
+            ], 400);
+        }
+
+        // Check if driver exists & has role_id = driver role
+        $driver = User::where('id', $request->driver_id)
+            ->where('role_id', 3) // Replace 3 with actual driver role_id
+            ->first();
+
+        if (!$driver) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Driver not found or not valid.'
+            ], 404);
+        }
+
+        // Assign driver
+        $order->driver_id = $driver->id;
+        $order->status = 'delivering';
+        $order->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Driver assigned successfully.'
+        ], 200);
+    }
+
+    //driver complete order
+    public function completeOrder(Request $request, $id)
+    {
+        // Find order
+        $order = Order::findOrFail($id);
+
+        // Order status check
+        if ($order->status != 'delivering') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order status must be delivering before completing.'
+            ], 400);
+        }
+
+        // Complete order
+        $order->status = 'completed';
+        $order->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Order completed successfully.'
+        ], 200);
+    }
+
+
+    //get delivery details
+    public function getOrderDetails()
+    {
+        try {
+            // Fetch all orders with the status 'delivering'
+            $orders = Order::with(['customer', 'address', 'orderDetails']) // Eager load customer, address, and orderDetails relations
+                ->where('status', 'delivering') // Only fetch orders with "delivering" status
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No orders found with delivering status.'
+                ], 404);
+            }
+
+            // Return the order details
+            return response()->json([
+                'status' => 'success',
+                'data' => $orders->map(function ($order) {
+                    return [
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                        'status' => $order->status,
+                        'customer' => [
+                            'id' => $order->customer->id,
+                            'name' => $order->customer->name,
+                            'email' => $order->customer->email,
+                            'phone' => $order->customer->phone,
+                            'avatar' => $order->customer->avatar,
+                        ],
+                        'address' => [
+                            'id' => $order->address->id,
+                            'street' => $order->address->street,
+                            'city' => $order->address->city,
+                            'reference' => $order->address->reference,
+                            'state' => $order->address->state,
+                            'zip' => $order->address->zip,
+                            'latitude' => $order->address->latitude,
+                            'longitude' => $order->address->longitude,
+                        ],
+                        'order_details' => $order->orderDetails->map(function ($detail) {
+                            return [
+                                'food_id' => $detail->food_id,
+                                'quantity' => $detail->quantity,
+                                'price' => $detail->price,
+                                'sub_total' => $detail->sub_total,
+
+                            ];
+                        })
+                    ];
+                })
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error fetching orders: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching orders.'
+            ], 500);
+        }
+    }
+
+
 
 
 
