@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleChangeController;
 use Google\Client as GoogleClient;
+use App\Http\Middleware\DriverMiddleware;
 
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -75,7 +76,9 @@ Route::get('/orders/status/{status}', [OrderController::class, 'getOrderByStatus
 Route::put('/orders/{orderId}/updateStatus', [OrderController::class, 'updateOrderStatus']);
 Route::put('/orders/assign-driver/{id}', [OrderController::class, 'assignDriver']);
 Route::put('/orders/complete-order/{id}', [OrderController::class, 'completeOrder']);
-Route::get('/orders/order-details', [OrderController::class, 'getOrderDetails']);
+// Route::get('/orders/driver-order-details', [OrderController::class, 'getDriverOrders']);
+
+Route::middleware([DriverMiddleware::class])->get('/orders/driver-order-details', [OrderController::class, 'getDriverOrders']);
 
 //order details routes
 Route::get('/orderDetails', [OrderDetailController::class, 'index']);
@@ -84,6 +87,7 @@ Route::get('/orderDetails/{orderDetail}', [OrderDetailController::class, 'show']
 Route::put('/orderDetails/{orderDetail}', [OrderDetailController::class, 'update']);
 Route::delete('/orderDetails/{id}', [OrderDetailController::class, 'destroy']);
 Route::get('/orderDetailsByOrderId/{id}', [OrderDetailController::class, 'getOrderDetailsByOrderId']);
+
 
 //driver routes
 Route::prefix('drivers')->group(function(){

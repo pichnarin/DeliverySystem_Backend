@@ -280,18 +280,87 @@ class OrderController extends Controller
 
 
     //get delivery details
-    public function getOrderDetails()
+    // public function getDriverOrders()
+    // {
+    //     try {
+    //         // Fetch all orders with the status 'delivering'
+    //         $orders = Order::with(['customer', 'address', 'orderDetails']) // Eager load customer, address, and orderDetails relations
+    //             ->where('status', 'delivering') // Only fetch orders with "delivering" status
+    //             ->get();
+
+    //         if ($orders->isEmpty()) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'No orders found with delivering status.'
+    //             ], 404);
+    //         }
+
+    //         // Return the order details
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'data' => $orders->map(function ($order) {
+    //                 return [
+    //                     'order_id' => $order->id,
+    //                     'order_number' => $order->order_number,
+    //                     'status' => $order->status,
+    //                     'customer' => [
+    //                         'id' => $order->customer->id,
+    //                         'name' => $order->customer->name,
+    //                         'email' => $order->customer->email,
+    //                         'phone' => $order->customer->phone,
+    //                         'avatar' => $order->customer->avatar,
+    //                     ],
+    //                     'address' => [
+    //                         'id' => $order->address->id,
+    //                         'street' => $order->address->street,
+    //                         'city' => $order->address->city,
+    //                         'reference' => $order->address->reference,
+    //                         'state' => $order->address->state,
+    //                         'zip' => $order->address->zip,
+    //                         'latitude' => $order->address->latitude,
+    //                         'longitude' => $order->address->longitude,
+    //                     ],
+    //                     'order_details' => $order->orderDetails->map(function ($detail) {
+    //                         return [
+    //                             'food_id' => $detail->food_id,
+    //                             'quantity' => $detail->quantity,
+    //                             'price' => $detail->price,
+    //                             'sub_total' => $detail->sub_total,
+
+    //                         ];
+    //                     })
+    //                 ];
+    //             })
+    //         ], 200);
+
+    //     } catch (\Exception $e) {
+    //         // Log the error message
+    //         Log::error('Error fetching orders: ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'An error occurred while fetching orders.'
+    //         ], 500);
+    //     }
+    // }
+
+
+    public function getDriverOrders(Request $request)
     {
         try {
-            // Fetch all orders with the status 'delivering'
-            $orders = Order::with(['customer', 'address', 'orderDetails']) // Eager load customer, address, and orderDetails relations
+            // Get the authenticated driver's ID from the JWT token
+            $driver_id = $request->user()->id;
+
+            // Fetch all orders with the status 'delivering' for this driver
+            $orders = Order::with(['customer', 'address', 'orderDetails']) // Eager load related data
+                ->where('driver_id', $driver_id) // Only fetch orders assigned to this driver
                 ->where('status', 'delivering') // Only fetch orders with "delivering" status
                 ->get();
 
             if ($orders->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'No orders found with delivering status.'
+                    'message' => 'No orders found for this driver with delivering status.'
                 ], 404);
             }
 
@@ -326,7 +395,6 @@ class OrderController extends Controller
                                 'quantity' => $detail->quantity,
                                 'price' => $detail->price,
                                 'sub_total' => $detail->sub_total,
-
                             ];
                         })
                     ];
@@ -335,7 +403,7 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             // Log the error message
-            Log::error('Error fetching orders: ' . $e->getMessage());
+            Log::error('Error fetching driver orders: ' . $e->getMessage());
 
             return response()->json([
                 'status' => 'error',
@@ -343,7 +411,6 @@ class OrderController extends Controller
             ], 500);
         }
     }
-
 
 
 
