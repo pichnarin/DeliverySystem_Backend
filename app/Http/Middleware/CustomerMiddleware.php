@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class AdminMiddleware
+class CustomerMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
@@ -16,7 +16,7 @@ class AdminMiddleware
             $user = JWTAuth::parseToken()->authenticate();
             
             // Check if the user has an admin role
-            if ($user && $user->role_id == 1) { // admin role_id is 1 
+            if ($user && $user->role_id == 2) { // customer role_id is 2
                 return $next($request);
             }
 
@@ -28,5 +28,6 @@ class AdminMiddleware
             return response()->json(['message' => 'Token is invalid or expired'], 401);
         }
     }
+
 
 }
