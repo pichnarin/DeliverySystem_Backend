@@ -12,22 +12,28 @@ class CustomerMiddleware
     public function handle(Request $request, Closure $next)
     {
         try {
-            // Attempt to authenticate the user via the JWT token
+            // Authenticate user
             $user = JWTAuth::parseToken()->authenticate();
-            
-            // Check if the user has an admin role
-            if ($user && $user->role_id == 2) { // customer role_id is 2
+
+            if (!$user) {
+                return response()->json(['message' => 'Authentication failed'], 401);
+            }
+
+            \Log::info('Authenticated User:', ['id' => $user->id, 'role_id' => $user->role_id]);
+
+            // Ensure the user is a customer
+            if ($user->role_id == 2) {
                 return $next($request);
             }
 
-            // If not an admin, return a forbidden response
             return response()->json(['message' => 'Forbidden, you are not authenticated to use this route'], 403);
 
         } catch (JWTException $e) {
-            // If the token is invalid or expired, return a response
+            \Log::error('JWT Authentication Error: ' . $e->getMessage());
             return response()->json(['message' => 'Token is invalid or expired'], 401);
         }
     }
+
 
 
 }

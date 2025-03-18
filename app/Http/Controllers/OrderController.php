@@ -103,7 +103,6 @@ class OrderController extends Controller
 
         try {
             $validated = $request->validate([
-                'customer_id' => 'required|exists:users,id',
                 'address_id' => 'required|exists:addresses,id',
                 'food' => 'required|array',
                 'food.*.food_id' => 'required|exists:food,id',
@@ -113,7 +112,7 @@ class OrderController extends Controller
             // Create Order
             $order = Order::create([
                 'order_number' => strtoupper(uniqid('ORD')),
-                'customer_id' => $validated['customer_id'],
+                'customer_id' => $request->user()->id,
                 'address_id' => $validated['address_id'],
                 'status' => 'pending',
                 'quantity' => array_sum(array_column($validated['food'], 'quantity')),
@@ -159,23 +158,108 @@ class OrderController extends Controller
         }
     }
 
-    //get order base on input status
-    public function getOrderByStatus($status)
+    //get pending orders
+    public function fetchPendingOrders()
     {
-        $validStatuses = ['pending', 'accepted', 'delivering', 'completed', 'declined'];
-
-        if (!in_array($status, $validStatuses)) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid status'], 400);
-        }
-
         try {
-            $data = Order::where('status', $status)->get();
+            $data = Order::where('status', 'pending')->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
+    //get accepted orders
+    public function fetchAcceptedOrders()
+    {
+        try {
+            $data = Order::where('status', 'accepted')->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get delivering orders
+    public function fetchDeliveringOrders()
+    {
+        try {
+            $data = Order::where('status', 'delivering')->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //get completed orders
+    public function fetchCompletedOrders()
+    {
+        try {
+            $data = Order::where('status', 'completed')->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //delivery orders
+    public function DeliveringOrder(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $validated = $request->validate([
+                'status' => 'required|in:delivering'
+            ]);
+
+
+            $order = Order::findOrFail($id);
+
+            // Update status
+            $order->status = $request->status;
+            $order->save();
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to delivering successfully'], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //update order status to completed
+    public function CompletedOrder(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $validated = $request->validate([
+                'status' => 'required|in:completed'
+            ]);
+
+            $order = Order::findOrFail($id);
+
+            // Update status
+            $order->status = $request->status;
+            $order->save();
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 
     //admin aprrove or reject order
     public function updateOrderStatus(Request $request, $orderId)
@@ -184,7 +268,7 @@ class OrderController extends Controller
 
         try {
             $validated = $request->validate([
-                'status' => 'required|in:pending,accepted,declined,delivering,completed'
+                'status' => 'required|in:pending,accepted,declined'
             ]);
 
             $order = Order::findOrFail($orderId);
@@ -254,29 +338,6 @@ class OrderController extends Controller
         ], 200);
     }
 
-    //driver complete order
-    public function completeOrder(Request $request, $id)
-    {
-        // Find order
-        $order = Order::findOrFail($id);
-
-        // Order status check
-        if ($order->status != 'delivering') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Order status must be delivering before completing.'
-            ], 400);
-        }
-
-        // Complete order
-        $order->status = 'completed';
-        $order->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Order completed successfully.'
-        ], 200);
-    }
 
 
     //get delivery details
@@ -525,6 +586,40 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
+    public function fetchCustomerOrders(Request $request)
+    {
+        try {
+            $data = Order::where('customer_id', $request->user()->id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function fetchCurrentCustomerOrder(Request $request)
+    {
+        try {
+            // Eager load orderDetails for ALL orders of user
+            $data = Order::with('orderDetails')
+                ->where('customer_id', $request->user()->id)
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 
 
 }

@@ -29,7 +29,7 @@ class StoreAddressRequest extends FormRequest
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'reference' => ['nullable', 'string', 'max:255'],
-            'customer_id' => ['required', 'numeric', 'exists:customers,id'],
+            'customer_id' => ['required', 'numeric', 'exists:users,id'],
         ];
     }
 }

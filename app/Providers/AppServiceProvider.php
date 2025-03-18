@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Kreait\Firebase\Factory;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        DB::listen(function ($query) {
+            // Log the query being executed
+            \Log::info($query->sql);
+        });
 
         Schema::defaultStringLength(191);
 

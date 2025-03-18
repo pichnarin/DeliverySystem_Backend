@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('state');
             $table->string('zip');
 
-            $table->foreignId('customer_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('customer_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }
