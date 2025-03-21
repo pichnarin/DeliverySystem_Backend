@@ -406,7 +406,7 @@ class OrderController extends Controller
     // }
 
 
-    public function getDriverOrders(Request $request)
+    public function fetchDriveingOrderDetails(Request $request)
     {
         try {
             // Get the authenticated driver's ID from the JWT token
@@ -423,7 +423,7 @@ class OrderController extends Controller
                     'status' => 'error',
                     'message' => 'No orders found for this driver with delivering status.'
                 ], 404);
-            }
+            }   
 
             // Return the order details
             return response()->json([
@@ -620,6 +620,13 @@ class OrderController extends Controller
     }
 
 
-
-
+    public function fetchOrderDetails($id)
+    {
+        try {
+            $data = Order::with('orderDetails')->where('id', $id)->get();
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }

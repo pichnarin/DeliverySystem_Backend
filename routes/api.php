@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\AdminMiddleware;
-use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FoodController;
@@ -10,12 +8,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\OrderDetailController;
-use App\Http\Controllers\DriverTrackingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RoleChangeController;
-use Google\Client as GoogleClient;
 use App\Http\Middleware\DriverMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
 
@@ -35,12 +29,10 @@ Route::post('/logout', [AuthController::class, 'logout']);
 //Google login for customer
 Route::post('/google-login', [AuthController::class, 'googleLogin']);
 
-
 //user routes
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
-
 
 Route::middleware([CustomerMiddleware::class])->group(function () {
     Route::prefix('addresses')->group(function () {
@@ -53,7 +45,6 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
     });
 });
 
-
 Route::middleware([CustomerMiddleware::class])->group(function () {
     Route::prefix('foods')->group(function () {
         Route::get('/', [FoodController::class, 'index']);
@@ -64,17 +55,17 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
 
 Route::middleware([CustomerMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
-        Route::post('/place-order', [OrderController::class, 'placeOrder']);
+        Route::post('/place-orders', [OrderController::class, 'placeOrder']);
         Route::get('/fetch-my-orders', [OrderController::class, 'fetchCustomerOrders']);
         Route::get('/fetch-current-order-details', [OrderController::class, 'fetchCurrentCustomerOrder']);
         Route::get('/fetch-order-history', [OrderController::class, 'fetchOrderHistory']);
+        // Route::get('/fetch-delivering-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
     });
 });
 
-
 Route::middleware([DriverMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
-        Route::get('/driver-order-details', [OrderController::class, 'getDriverOrders']);
+        Route::get('/driver-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
         Route::get('/fetch-accepeted-orders', [OrderController::class, 'fetchAcceptedOrders']);
         Route::put('/accept-delivering/{orderId}', [OrderController::class, 'DeliveringOrder']);
         Route::put('/complete/{orderId}', [OrderController::class, 'CompletedOrder']);
@@ -87,27 +78,25 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::put('/accept-or-declined/{orderId}', [OrderController::class, 'updateOrderStatus']);
         Route::put('/assign-a-driver/{orderId}', [OrderController::class, 'assignDriver']);
+        Route::get('/fetch-order-details/{orderId}', [OrderController::class, 'fetchOrderDetails']);
         Route::get('/fetch-pending-orders', [OrderController::class, 'fetchPendingOrders']);
         Route::get('/fetch-accepted-orders', [OrderController::class, 'fetchAcceptedOrders']);
         Route::get('/fetch-delivering-orders', [OrderController::class, 'fetchDeliveringOrders']);
         Route::get('/fetch-completed-orders', [OrderController::class, 'fetchCompletedOrders']);
-        Route::get('/get-order-details', [OrderController::class, 'getDriverOrders']);
+        Route::get('/fetch-assigned-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
     });
 });
 
 Route::middleware([AdminMiddleware::class])->group(function () {
     Route::prefix('foods')->group(function () {
-        Route::get('/', [FoodController::class, 'index']);  
+        Route::get('/fetchAllFoods', [FoodController::class, 'index']);  
         Route::post('/create', [FoodController::class, 'createFood']);
         Route::post('/update/{id}', [FoodController::class, 'updateFood']);
         Route::delete('/delete/{id}', [FoodController::class, 'deleteFood']);
         Route::get('/search/{id}', [FoodController::class, 'searchFood']);
+        Route::get('/fetch-by-cate/{category}', [FoodController::class, 'fetchFoodsByCategory']);
     });
 });
-
-
-
-
 
 //roles routes
 Route::prefix('roles')->group(function () {
@@ -128,14 +117,6 @@ Route::prefix('categories')->group(function () {
     Route::get('/get-cat-by-name/{$name}', [CategoryController::class, 'getCategoryByName']);
 });
 
-
-// //order details routes
-// Route::get('/orderDetails', [OrderDetailController::class, 'index']);
-// Route::get('/orderDetails/{orderDetail}', [OrderDetailController::class, 'show']);
-// // Route::post('orderDetails', [OrderDetailController::class, 'store']);
-// Route::put('/orderDetails/{orderDetail}', [OrderDetailController::class, 'update']);
-// Route::delete('/orderDetails/{id}', [OrderDetailController::class, 'destroy']);
-// Route::get('/orderDetailsByOrderId/{id}', [OrderDetailController::class, 'getOrderDetailsByOrderId']);
 
 
 
