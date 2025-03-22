@@ -25,7 +25,7 @@ class AdminMiddleware
 
         } catch (JWTException $e) {
             // If the token is invalid or expired, return a response
-            return response()->json(['message' => 'Token is invalid or expired'], 401);
+            return response()->json(['message' => 'Token is invalidd or expired'], 401);
         }
     }
 
