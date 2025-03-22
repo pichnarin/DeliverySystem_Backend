@@ -581,7 +581,7 @@ class OrderController extends Controller
 
             $data = Order::where('status', 'assigning') // You might be using 'assigned' or 'on_the_way' status
                 ->where('driver_id', $driverId)
-                ->with('orderDetails') // Eager load order details if needed
+                ->with('orderDetails', 'customer', 'address') // Eager load order details if needed
                 ->get();
 
             return response()->json(['status' => 'success', 'data' => $data], 200);
