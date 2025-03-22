@@ -202,64 +202,6 @@ class OrderController extends Controller
         }
     }
 
-    //delivery orders
-    public function DeliveringOrder(Request $request, $id)
-    {
-        DB::beginTransaction();
-
-        try {
-
-            $validated = $request->validate([
-                'status' => 'required|in:delivering'
-            ]);
-
-
-            $order = Order::findOrFail($id);
-
-            // Update status
-            $order->status = $request->status;
-            $order->save();
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to delivering successfully'], 200);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
-
-    //update order status to completed
-    public function CompletedOrder(Request $request, $id)
-    {
-        DB::beginTransaction();
-
-        try {
-
-            $validated = $request->validate([
-                'status' => 'required|in:completed'
-            ]);
-
-            $order = Order::findOrFail($id);
-
-            // Update status
-            $order->status = $request->status;
-            $order->save();
-
-            DB::commit();
-
-            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
-
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
-    }
 
     //admin aprrove or reject order
     public function updateOrderStatus(Request $request, $orderId)
@@ -329,7 +271,7 @@ class OrderController extends Controller
 
         // Assign driver
         $order->driver_id = $driver->id;
-        $order->status = 'delivering';
+        $order->status = 'assigning';
         $order->save();
 
         return response()->json([
@@ -423,7 +365,7 @@ class OrderController extends Controller
                     'status' => 'error',
                     'message' => 'No orders found for this driver with delivering status.'
                 ], 404);
-            }   
+            }
 
             // Return the order details
             return response()->json([
@@ -629,4 +571,83 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
+    // Driver fetch orders assigned by admin
+    public function fetchAssignedOrders(Request $request)
+    {
+        try {
+            $driverId = $request->user()->id; // Assuming the driver is authenticated!
+
+            $data = Order::where('status', 'assigning') // You might be using 'assigned' or 'on_the_way' status
+                ->where('driver_id', $driverId)
+                ->with('orderDetails') // Eager load order details if needed
+                ->get();
+
+            return response()->json(['status' => 'success', 'data' => $data], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    //delivery orders
+    public function DeliveringOrder(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $validated = $request->validate([
+                'status' => 'required|in:delivering'
+            ]);
+
+
+            $order = Order::findOrFail($id);
+
+            // Update status
+            $order->status = $request->status;
+            $order->save();
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to delivering successfully'], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+     //update order status to completed
+     public function CompletedOrder(Request $request, $id)
+     {
+         DB::beginTransaction();
+ 
+         try {
+ 
+             $validated = $request->validate([
+                 'status' => 'required|in:completed'
+             ]);
+ 
+             $order = Order::findOrFail($id);
+ 
+             // Update status
+             $order->status = $request->status;
+             $order->save();
+ 
+             DB::commit();
+ 
+             return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
+ 
+         } catch (\Exception $e) {
+ 
+             DB::rollBack();
+ 
+             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+         }
+     }
+
 }

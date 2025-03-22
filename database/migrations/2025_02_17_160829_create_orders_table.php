@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->enum('status', [
                 'pending', // Order placed, waiting for restaurant approval
                 'accepted', // Restaurant accepted order
+                'assigning', // Order assigned to a driver
                 'delivering', // Order is out for delivery
                 'completed', // Order delivered successfully
                 'declined', // Order was rejected

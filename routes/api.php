@@ -66,7 +66,8 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
 Route::middleware([DriverMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
         Route::get('/driver-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
-        Route::get('/fetch-accepeted-orders', [OrderController::class, 'fetchAcceptedOrders']);
+        Route::get('/fetch-assigning-orders', [OrderController::class, 'fetchAssignedOrders']);
+        Route::get('/fetch-delivering-order-details/{orderId}', [OrderController::class, 'fetchOrderDetails']);
         Route::put('/accept-delivering/{orderId}', [OrderController::class, 'DeliveringOrder']);
         Route::put('/complete/{orderId}', [OrderController::class, 'CompletedOrder']);
         // Route::get('/fetch-delivery-history', [OrderController::class, 'fetchDeliveringHistory']);
