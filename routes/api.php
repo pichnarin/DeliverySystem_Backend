@@ -34,24 +34,7 @@ Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
 
-Route::middleware([CustomerMiddleware::class])->group(function () {
-    Route::prefix('addresses')->group(function () {
-        Route::get('/', [AddressController::class, 'index']);
-        Route::get('/fetch-addresses', [AddressController::class, 'fetchCustomerAddresses']);
-        Route::post('/create-address', [AddressController::class, 'createAddress']);
-        Route::put('/update-address/{address}', [AddressController::class, 'update']);
-        Route::delete('/delete-address/{id}', [AddressController::class, 'destroy']);
-        Route::get('/get-address-by-user-id/{id}', [AddressController::class, 'getAddressByUserId']);
-    });
-});
 
-Route::middleware([CustomerMiddleware::class])->group(function () {
-    Route::prefix('foods')->group(function () {
-        Route::get('/', [FoodController::class, 'index']);
-        Route::get('/find-food/{id}', [FoodController::class, 'searchFood']);
-        Route::get('/fetch-by-category/{category}', [FoodController::class, 'fetchFoodsByCategory']);
-    });
-});
 
 Route::middleware([CustomerMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
@@ -60,6 +43,21 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
         Route::get('/fetch-current-order-details', [OrderController::class, 'fetchCurrentCustomerOrder']);
         Route::get('/fetch-order-history', [OrderController::class, 'fetchOrderHistory']);
         // Route::get('/fetch-delivering-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
+    });
+
+    Route::prefix('addresses')->group(function () {
+        Route::get('/', [AddressController::class, 'index']);
+        Route::get('/fetch-addresses', [AddressController::class, 'fetchCustomerAddresses']);
+        Route::post('/create-address', [AddressController::class, 'createAddress']);
+        Route::put('/update-address/{address}', [AddressController::class, 'update']);
+        Route::delete('/delete-address/{id}', [AddressController::class, 'destroy']);
+        Route::get('/get-address-by-user-id/{id}', [AddressController::class, 'getAddressByUserId']);
+    });
+
+    Route::prefix('foods')->group(function () {
+        Route::get('/', [FoodController::class, 'index']);
+        Route::get('/find-food/{id}', [FoodController::class, 'searchFood']);
+        Route::get('/fetch-by-category/{category}', [FoodController::class, 'fetchFoodsByCategory']);
     });
 });
 
@@ -86,9 +84,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/fetch-completed-orders', [OrderController::class, 'fetchCompletedOrders']);
         Route::get('/fetch-assigned-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
     });
-});
 
-Route::middleware([AdminMiddleware::class])->group(function () {
     Route::prefix('foods')->group(function () {
         Route::get('/fetchAllFoods', [FoodController::class, 'index']);  
         Route::post('/create', [FoodController::class, 'createFood']);
@@ -98,6 +94,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/fetch-by-cate/{category}', [FoodController::class, 'fetchFoodsByCategory']);
     });
 });
+
 
 //roles routes
 Route::prefix('roles')->group(function () {

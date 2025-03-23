@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\User;
+use GuzzleHttp\Client;
 
 class OrderController extends Controller
 {
@@ -28,74 +29,12 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-
-
-    // public function storeOrder(StoreOrderRequest $request)
-    // {
-    //     // Start transaction
-    //     DB::beginTransaction();
-
-    //     try {
-    //         // Create order
-    //         $order = Order::create([
-    //             'customer_id' => $request->customer_id,
-    //             'address_id' => $request->address_id,
-    //             'order_number' => uniqid('ORDER-'),
-    //             'status' => 'pending', // Set initial status to 'pending'
-    //             'total' => 0, // Will be calculated later
-    //             'delivery_fee' => 5.00, // You can adjust this
-    //             'tax' => 0, // Add tax logic if needed
-    //             'discount' => 0, // Add discount logic if needed
-    //         ]);
-
-    //         $total = 0;
-
-    //         // Loop through cart items and store them in order_details table
-    //         foreach ($request->cart_items as $item) {
-    //             $food = Food::findOrFail($item['food_id']);
-    //             $subTotal = $food->price * $item['quantity'];
-
-    //             // Create order detail
-    //             OrderDetail::create([
-    //                 'order_id' => $order->id,
-    //                 'food_id' => $item['food_id'],
-    //                 'name' => $item['name'],
-    //                 'quantity' => $item['quantity'],
-    //                 'price' => $food->price,
-    //                 'sub_total' => $subTotal,
-    //             ]);
-
-    //             // Update total for the order
-    //             $total += $subTotal;
-    //         }
-
-    //         // Update the total amount for the order
-    //         $order->update([
-    //             'total' => $total,
-    //         ]);
-
-    //         // Commit the transaction
-    //         DB::commit();
-
-    //         return response()->json(['message' => 'Order created successfully', 'order' => $order], 201);
-
-    //     } catch (\Exception $e) {
-    //         // Rollback the transaction if there's an error
-    //         DB::rollBack();
-    //         return response()->json(['message' => 'Error creating order: ' . $e->getMessage()], 500);
-    //     }
-    // }
 
     public function placeOrder(Request $request)
     {
@@ -147,6 +86,9 @@ class OrderController extends Controller
             ]);
 
             DB::commit();
+
+            //emit order notification to socket server
+            $this->notifySocketServer($order);
 
             return response()->json([
                 'message' => 'Order placed successfully',
@@ -280,74 +222,6 @@ class OrderController extends Controller
         ], 200);
     }
 
-
-
-    //get delivery details
-    // public function getDriverOrders()
-    // {
-    //     try {
-    //         // Fetch all orders with the status 'delivering'
-    //         $orders = Order::with(['customer', 'address', 'orderDetails']) // Eager load customer, address, and orderDetails relations
-    //             ->where('status', 'delivering') // Only fetch orders with "delivering" status
-    //             ->get();
-
-    //         if ($orders->isEmpty()) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'No orders found with delivering status.'
-    //             ], 404);
-    //         }
-
-    //         // Return the order details
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'data' => $orders->map(function ($order) {
-    //                 return [
-    //                     'order_id' => $order->id,
-    //                     'order_number' => $order->order_number,
-    //                     'status' => $order->status,
-    //                     'customer' => [
-    //                         'id' => $order->customer->id,
-    //                         'name' => $order->customer->name,
-    //                         'email' => $order->customer->email,
-    //                         'phone' => $order->customer->phone,
-    //                         'avatar' => $order->customer->avatar,
-    //                     ],
-    //                     'address' => [
-    //                         'id' => $order->address->id,
-    //                         'street' => $order->address->street,
-    //                         'city' => $order->address->city,
-    //                         'reference' => $order->address->reference,
-    //                         'state' => $order->address->state,
-    //                         'zip' => $order->address->zip,
-    //                         'latitude' => $order->address->latitude,
-    //                         'longitude' => $order->address->longitude,
-    //                     ],
-    //                     'order_details' => $order->orderDetails->map(function ($detail) {
-    //                         return [
-    //                             'food_id' => $detail->food_id,
-    //                             'quantity' => $detail->quantity,
-    //                             'price' => $detail->price,
-    //                             'sub_total' => $detail->sub_total,
-
-    //                         ];
-    //                     })
-    //                 ];
-    //             })
-    //         ], 200);
-
-    //     } catch (\Exception $e) {
-    //         // Log the error message
-    //         Log::error('Error fetching orders: ' . $e->getMessage());
-
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'An error occurred while fetching orders.'
-    //         ], 500);
-    //     }
-    // }
-
-
     public function fetchDriveingOrderDetails(Request $request)
     {
         try {
@@ -442,23 +316,6 @@ class OrderController extends Controller
 
     }
 
-    //update order status
-    // public function updateOrderStatus(UpdateOrderStatusRequest $request)
-    // {
-
-    //     $order = Order::findOrFail($request->order_id);
-    //     $order->status = $request->status;
-    //     $order->save();
-
-    //     //get customer's fcm token
-    //     $customerToken = $order->user->noti_token;
-    //     $message = $request->status == "accepted" ? "Your order has been accepted" : "Your order has been rejected";
-
-    //     //send notification to customer
-    //     $this->sendFCMNotification($customerToken, $message);
-
-    //     return response()->json(['status' => 'success', 'message' => 'Order status updated successfully'], 200);
-    // }
 
     /**
      * Remove the specified resource from storage.
@@ -621,33 +478,55 @@ class OrderController extends Controller
         }
     }
 
-     //update order status to completed
-     public function CompletedOrder(Request $request, $id)
-     {
-         DB::beginTransaction();
- 
-         try {
- 
-             $validated = $request->validate([
-                 'status' => 'required|in:completed'
-             ]);
- 
-             $order = Order::findOrFail($id);
- 
-             // Update status
-             $order->status = $request->status;
-             $order->save();
- 
-             DB::commit();
- 
-             return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
- 
-         } catch (\Exception $e) {
- 
-             DB::rollBack();
- 
-             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-         }
-     }
+    //update order status to completed
+    public function CompletedOrder(Request $request, $id)
+    {
+        DB::beginTransaction();
 
+        try {
+
+            $validated = $request->validate([
+                'status' => 'required|in:completed'
+            ]);
+
+            $order = Order::findOrFail($id);
+
+            // Update status
+            $order->status = $request->status;
+            $order->save();
+
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    /**
+     * Send a notification to the Socket.IO server.
+     */
+
+    private function notifySocketServer($order)
+    {
+        $client = new Client();
+        try {
+            $client->post('http://localhost:3000/order-notification', [
+                'json' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'status' => $order->status,
+                    'total' => $order->total,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error sending notification to Socket.IO server: ' . $e->getMessage());
+        }
+    }
 }
