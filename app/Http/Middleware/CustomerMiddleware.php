@@ -18,7 +18,6 @@ class CustomerMiddleware
             if (!$user) {
                 return response()->json(['message' => 'Authentication failed'], 401);
             }
-
             // \Log::info('Authenticated User:', ['id' => $user->id, 'role_id' => $user->role_id]);
 
             // Ensure the user is a customer
@@ -30,6 +29,7 @@ class CustomerMiddleware
 
         } catch (JWTException $e) {
             // \Log::error('JWT Authentication Error: ' . $e->getMessage());
+
             return response()->json(['message' => 'Token is invalid or expired'], 401);
         }
     }

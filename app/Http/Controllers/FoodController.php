@@ -13,41 +13,30 @@ class FoodController extends Controller
 {
     public function createFood(Request $request)
     {
-        //validation
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'description' => 'nullable|string',
-            'category_id' => 'required|integer',
-            'img' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        // Check if the image file exists
+        try{
+            if ($request->hasFile('img')) {
+                // Get the file and store it
+                $image = $request->file('img');
+                $imagePath = $image->store('images', 'public');
+            } 
+        
+                // Store food item in the database
+                $food = Food::create([
+                    'name' => $request->input('name'),
+                    'price' => $request->input('price'),
+                    'description' => $request->input('description'),
+                    'category_id' => $request->input('category_id'),
+                    // 'image' => $imagePath, // Save the image path
+                    'image' => $imagePath,  
+                ]);
+                return response()->json(['message' => 'Food item created successfully!', 
+                'data' => new FoodResource($food)], 201);
+            }
 
-        //handle file upload
-        $foodImgObj = $request->file('img');
-        $path = './assets/food_images';
-        $foodImg = time() . '_' . $foodImgObj->getClientOriginalName();
-        $foodImgObj->move($path, $foodImg);
-
-        $name = $request->get('name');
-        $category = $request->input('category_id');
-        $price = $request->input('price');
-        $description = $request->input('description');
-
-        $food = Food::create([
-            'name' => $name,
-            'category_id' => $category,
-            'price' => $price,
-            'description' => $description,
-            'image' => $foodImg,
-
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Food created successfully!',
-            'data' => new FoodResource($food)
-        ], 201);
-
+        catch(\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
     public function getAllFoods()
