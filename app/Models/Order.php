@@ -47,4 +47,7 @@ class Order extends Model
         return $this->belongsTo(Address::class, 'address_id');
     }
 
+    public function driver(){
+        return $this->belongsTo(User::class, 'driver_id');
+    }
 }

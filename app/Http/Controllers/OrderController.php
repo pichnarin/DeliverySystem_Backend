@@ -419,14 +419,18 @@ class OrderController extends Controller
     }
 
 
-    public function fetchOrderDetails($id)
+    public function fetchOrderDetails(Request $request)
     {
         try {
-            $data = Order::with('orderDetails')->where('id', $id)->get();
+            $data = Order::with('orderDetails', 'customer', 'address', 'driver') // Eager load relations including driver if needed
+                ->get();
+        
             return response()->json(['status' => 'success', 'data' => $data], 200);
+        
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+        
     }
 
 
@@ -447,6 +451,7 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
 
     //delivery orders
     public function DeliveringOrder(Request $request, $id)
