@@ -15,23 +15,23 @@ class FoodController extends Controller
     {
         // Check if the image file exists
         try{
+            // Check if an image was uploaded
+            $imagePath = null;
             if ($request->hasFile('img')) {
-                // Get the file and store it
                 $image = $request->file('img');
-                $imagePath = $image->store('images', 'public');
-            } 
-        
-                // Store food item in the database
-                $food = Food::create([
-                    'name' => $request->input('name'),
-                    'price' => $request->input('price'),
-                    'description' => $request->input('description'),
-                    'category_id' => $request->input('category_id'),
-                    // 'image' => $imagePath, // Save the image path
-                    'image' => $imagePath,  
+                $imagePath = $image->store('images', 'public'); // Store in "storage/app/public/images"
+            }
+
+            // Store food item in the database
+            $food = Food::create([
+                'name' => $request->input('name'),
+                'price' => $request->input('price'),
+                'description' => $request->input('description'),
+                'category_id' => $request->input('category_id'),
+                'image' => $imagePath ? asset("storage/" . $imagePath) : null, // Full image URL
                 ]);
-                return response()->json(['message' => 'Food item created successfully!', 
-                'data' => new FoodResource($food)], 201);
+            return response()->json(['message' => 'Food item created successfully!', 
+            'data' => new FoodResource($food)], 201);
             }
 
         catch(\Exception $e) {
