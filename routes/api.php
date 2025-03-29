@@ -21,6 +21,7 @@ Route::get('/test', function () {
     return response()->json(['message' => 'Hello World!']);
 });
 
+
 //Register and login (admin - customer - driver) - admin's API
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

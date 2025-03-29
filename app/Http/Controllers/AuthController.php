@@ -7,9 +7,12 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Kreait\Firebase\Factory;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 use Kreait\Firebase\Exception\Auth\InvalidToken;
 use Kreait\Firebase\Exception\Auth\RevokedIdToken;
 
@@ -31,28 +34,28 @@ class AuthController extends Controller
         $path = './assets/user_images';
         $userImg = time() . '_' . $userImgObj->getClientOriginalName();
         $userImgObj->move($path, $userImg);
-        
+
         $user = User::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
             'password' => Hash::make($request->get('password')),
             'phone' => $request->get('phone_number'),
-            'avatar' =>  $userImg,
+            'avatar' => $userImg,
             'status' => "active",
             'noti_token' => null,
             'provider' => null,
             'provider_id' => null,
             'email_verified_at' => now(),
-            'role_id' => $request ->get('role_id')
+            'role_id' => $request->get('role_id')
         ]);
 
         // dd($user);
         //generate token, the fromUser method mean that it generate token base of User model
         $token = JWTAuth::fromUser($user);
-        
+
         return response()->json([
             'messsage' => 'Registered successful',
-            'user_data' => $user, 
+            'user_data' => $user,
             'jwt_token' => $token,
         ], 201);
     }
@@ -64,7 +67,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            if (! $token = JWTAuth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
 
@@ -73,9 +76,9 @@ class AuthController extends Controller
 
             // return response()->json(compact('token'));
             return response()->json([
-            'message' => 'login successful',
-            'data' => $user,
-            'token' => $token
+                'message' => 'login successful',
+                'data' => $user,
+                'token' => $token
             ]);
 
         } catch (JWTException $e) {
@@ -86,11 +89,11 @@ class AuthController extends Controller
 
     // User Logout
     public function logout(Request $request)
-    {   
+    {
         try {
             // Invalidate the current token
             JWTAuth::invalidate(JWTAuth::getToken());
-    
+
             return response()->json([
                 'message' => 'Successfully logged out',
             ], 200);
@@ -99,7 +102,7 @@ class AuthController extends Controller
             // If there's an error during invalidation, return a response
             return response()->json([
                 'message' => 'Error while logging out',
-                'error' => $e->getMessage(), 
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -240,4 +243,3 @@ class AuthController extends Controller
     }
 
 }
-

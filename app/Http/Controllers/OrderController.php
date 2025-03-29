@@ -88,7 +88,7 @@ class OrderController extends Controller
             DB::commit();
 
             //emit order notification to socket server
-            $this->notifySocketServer($order);
+            $this->emitRecieveOrder($order);
 
             return response()->json([
                 'message' => 'Order placed successfully',
@@ -163,6 +163,9 @@ class OrderController extends Controller
 
             DB::commit();
 
+            //emit order status to socket server
+            $this->emitOrderStatus($order);
+
             // Return success response
             return response()->json([
                 'status' => 'success',
@@ -183,44 +186,66 @@ class OrderController extends Controller
 
     public function assignDriver(Request $request, $id)
     {
-        // Validate driver_id
-        $request->validate([
-            'driver_id' => 'required|integer'
-        ]);
+        DB::beginTransaction();
+    
+        try {
+            // Validate driver_id
+            $request->validate([
+                'driver_id' => 'required|integer'
+            ]);
+    
+            // Find the order
+            $order = Order::findOrFail($id);
+    
+            // Order status check
+            if ($order->status != 'accepted') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Order status must be accepted before assigning a driver.'
+                ], 400);
+            }
+    
+            // Check if driver exists and has the correct role_id
+            $driver = User::where('id', $request->driver_id)
+                ->where('role_id', 3) // Assuming 3 is the driver role_id
+                ->first();
+    
+            if (!$driver) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Driver not found or not valid.'
+                ], 404);
+            }
+    
+            // Assign the driver
+            $order->driver_id = $driver->id;
+            $order->status = 'assigning'; // Update order status to 'assigning'
+            $order->save();
+    
+            // Commit the transaction
+            DB::commit();
 
-        // Find order
-        $order = Order::findOrFail($id);
-
-        // Order status check
-        if ($order->status != 'accepted') {
+            //emit the order status to socket server
+            $this->emitOrderStatus($order);
+    
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Driver assigned successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            // Rollback the transaction in case of error
+            DB::rollBack();
+    
+            // Log the error
+            \Log::error('Error assigning driver: ' . $e->getMessage());
+    
             return response()->json([
                 'status' => 'error',
-                'message' => 'Order status must be accepted before assigning a driver.'
-            ], 400);
+                'message' => 'Failed to assign driver: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Check if driver exists & has role_id = driver role
-        $driver = User::where('id', $request->driver_id)
-            ->where('role_id', 3) // Replace 3 with actual driver role_id
-            ->first();
-
-        if (!$driver) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Driver not found or not valid.'
-            ], 404);
-        }
-
-        // Assign driver
-        $order->driver_id = $driver->id;
-        $order->status = 'assigning';
-        $order->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Driver assigned successfully.'
-        ], 200);
     }
+    
 
     public function fetchDriveingOrderDetails(Request $request)
     {
@@ -424,13 +449,13 @@ class OrderController extends Controller
         try {
             $data = Order::with('orderDetails', 'customer', 'address', 'driver') // Eager load relations including driver if needed
                 ->get();
-        
+
             return response()->json(['status' => 'success', 'data' => $data], 200);
-        
+
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-        
+
     }
 
 
@@ -473,6 +498,9 @@ class OrderController extends Controller
 
             DB::commit();
 
+            //emit order status to socket server
+            $this->emitOrderStatus($order);
+
             return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to delivering successfully'], 200);
 
         } catch (\Exception $e) {
@@ -502,6 +530,9 @@ class OrderController extends Controller
 
             DB::commit();
 
+            //emit the order status to socket server
+            $this->emitOrderStatus($order);
+
             return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
 
         } catch (\Exception $e) {
@@ -518,7 +549,8 @@ class OrderController extends Controller
      * Send a notification to the Socket.IO server.
      */
 
-    private function notifySocketServer($order)
+    //alert admin when customer done plcaing order
+    private function emitRecieveOrder($order)
     {
         $client = new Client();
         try {
@@ -528,6 +560,24 @@ class OrderController extends Controller
                     'order_number' => $order->order_number,
                     'status' => $order->status,
                     'total' => $order->total,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error sending notification to Socket.IO server: ' . $e->getMessage());
+        }
+    }
+
+
+    //alert customer when admin accepted or declined order
+    private function emitOrderStatus($order)
+    {
+        $client = new Client();
+        try {
+            $client->put('http://localhost:3000/order-status', [
+                'json' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'status' => $order->status,
                 ]
             ]);
         } catch (\Exception $e) {
