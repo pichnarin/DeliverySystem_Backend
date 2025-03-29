@@ -27,6 +27,7 @@ return new class extends Migration {
                 'completed', // Order delivered successfully
                 'declined', // Order was rejected
             ])->default('pending');
+            
             $table->integer('quantity');
             $table->decimal('total', 10, 2)->default(0);
             $table->decimal('delivery_fee', 10, 2)->default(0);

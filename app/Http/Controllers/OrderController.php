@@ -554,7 +554,7 @@ class OrderController extends Controller
     {
         $client = new Client();
         try {
-            $client->post('http://localhost:3000/order-notification', [
+            $client->post('http://localhost:3000/recieve-order', [
                 'json' => [
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
