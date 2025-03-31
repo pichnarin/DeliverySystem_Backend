@@ -73,4 +73,23 @@ class UserController extends Controller
         }
     }
 
+    //get all drivers
+    public function getAllDrivers()
+    {
+        try {
+            $drivers = User::where('role_id', 3)->get(); // Assuming role_id 3 is for drivers
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $drivers
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching drivers: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to fetch drivers. Please try again later.'
+            ], 500);
+        }
+    }
+
 }
