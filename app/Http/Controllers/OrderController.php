@@ -449,13 +449,11 @@ class OrderController extends Controller
         try {
             $data = Order::with('orderDetails', 'customer', 'address', 'driver') // Eager load relations including driver if needed
                 ->get();
-
             return response()->json(['status' => 'success', 'data' => $data], 200);
 
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
     }
 
 
@@ -582,6 +580,16 @@ class OrderController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error sending notification to Socket.IO server: ' . $e->getMessage());
+        }
+    }
+
+    public function fetchOrderDetailById(Request $request, $id)
+    {
+        try {
+            $order = Order::with('orderDetails')->findOrFail($id);
+            return response()->json(['status' => 'success', 'data' => $order], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

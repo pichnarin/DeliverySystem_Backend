@@ -27,6 +27,7 @@ class User extends Authenticatable implements JWTSubject
      protected $table = 'users';
 
      protected $primaryKey = 'id';
+
      
     protected $fillable = [
         'name',
@@ -88,7 +89,7 @@ class User extends Authenticatable implements JWTSubject
     
         public function role(){
             return $this->belongsTo(Role::class, 'role_id');
-        }
+        }        
     
         public function orders(){
             return $this->hasMany(Order::class, 'customer_id');
@@ -100,10 +101,6 @@ class User extends Authenticatable implements JWTSubject
     
         public function driver(){
             return $this->hasOne(DriverTracking::class, 'driver_id');
-        }
-
-        public function roleChangeRequest(){
-            return $this->hasOne(RoleChangeRequest::class, 'user_id');
         }
     }
 

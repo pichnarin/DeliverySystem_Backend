@@ -33,7 +33,7 @@ Route::post('/google-login', [AuthController::class, 'googleLogin']);
 //user routes
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
-Route::get('/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
+Route::get('/users/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
 
 
 
@@ -84,6 +84,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/fetch-delivering-orders', [OrderController::class, 'fetchDeliveringOrders']);
         Route::get('/fetch-completed-orders', [OrderController::class, 'fetchCompletedOrders']);
         Route::get('/fetch-assigned-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
+        Route::get('/fetch-order-detail-by-id/{orderId}', [OrderController::class, 'fetchOrderDetailById']);
     });
 
     Route::prefix('foods')->group(function () {

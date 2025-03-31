@@ -1,18 +1,13 @@
 <?php
 namespace App\Http\Controllers;
-
-use Google_Client;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Kreait\Firebase\Factory;
-use Kreait\Laravel\Firebase\Facades\Firebase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use Kreait\Firebase\Exception\Auth\InvalidToken;
 use Kreait\Firebase\Exception\Auth\RevokedIdToken;
 
