@@ -26,16 +26,16 @@ class AuthController extends Controller
         // ]);
 
         $userImgObj = $request->file('profile_img');
-        $path = './assets/user_images';
-        $userImg = time() . '_' . $userImgObj->getClientOriginalName();
-        $userImgObj->move($path, $userImg);
-
+        // $path = './assets/user_images';
+        // $userImg = time() . '_' . $userImgObj->getClientOriginalName();
+        // $userImgObj->move($path, $userImg);
+        $imgPath = $userImgObj->store('images','public');
         $user = User::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
             'password' => Hash::make($request->get('password')),
             'phone' => $request->get('phone_number'),
-            'avatar' => $userImg,
+            'avatar' => asset("storage/".$imgPath),
             'status' => "active",
             'noti_token' => null,
             'provider' => null,
