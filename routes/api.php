@@ -37,8 +37,6 @@ Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/users/get-users-by-role-name/{role}', [UserController::class, 'getUserByRole']);
 
 
-
-
 Route::middleware([CustomerMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
         Route::post('/place-orders', [OrderController::class, 'placeOrder']);
@@ -79,13 +77,14 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);
         Route::patch('/accept-or-declined/{orderId}', [OrderController::class, 'updateOrderStatus']);
-        Route::put('/assign-a-driver/{orderId}', [OrderController::class, 'assignDriver']);
+        Route::patch('/assign-a-driver/{orderId}', [OrderController::class, 'assignDriver']);
         Route::get('/fetch-order-details', [OrderController::class, 'fetchOrderDetails']);
         Route::get('/fetch-pending-orders', [OrderController::class, 'fetchPendingOrders']);
         Route::get('/fetch-accepted-orders', [OrderController::class, 'fetchAcceptedOrders']);
         Route::get('/fetch-delivering-orders', [OrderController::class, 'fetchDeliveringOrders']);
         Route::get('/fetch-completed-orders', [OrderController::class, 'fetchCompletedOrders']);
         Route::get('/fetch-assigned-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
+        Route::get('/fetch-all-drivers',[OrderController::class,'fetchAllDrivers']);
         Route::get('/fetch-order-detail-by-id/{orderId}', [OrderController::class, 'fetchOrderDetailById']);
     });
 
