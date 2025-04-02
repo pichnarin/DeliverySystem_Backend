@@ -45,7 +45,7 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
         Route::get('/fetch-my-orders', [OrderController::class, 'fetchCustomerOrders']);
         Route::get('/fetch-current-order-details', [OrderController::class, 'fetchCurrentCustomerOrder']);
         Route::get('/fetch-order-history', [OrderController::class, 'fetchOrderHistory']);
-        // Route::get('/fetch-delivering-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
+        Route::get('/fetch-delivering-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
     });
 
     Route::prefix('addresses')->group(function () {
@@ -62,6 +62,10 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
         Route::get('/find-food/{id}', [FoodController::class, 'searchFood']);
         Route::get('/fetch-by-category/{category}', [FoodController::class, 'fetchFoodsByCategory']);
     });
+
+    Route::prefix('categories')->group(function (){
+        Route::get('/', [CategoryController::class, 'index']);
+    });
 });
 
 Route::middleware([DriverMiddleware::class])->group(function () {
@@ -71,7 +75,7 @@ Route::middleware([DriverMiddleware::class])->group(function () {
         Route::get('/fetch-delivering-order-details/{orderId}', [OrderController::class, 'fetchOrderDetails']);
         Route::put('/accept-delivering/{orderId}', [OrderController::class, 'DeliveringOrder']);
         Route::put('/complete/{orderId}', [OrderController::class, 'CompletedOrder']);
-        // Route::get('/fetch-delivery-history', [OrderController::class, 'fetchDeliveringHistory']);
+        Route::get('/fetch-delivery-history', [OrderController::class, 'fetchDeliveringHistory']);
     });
 });
 
