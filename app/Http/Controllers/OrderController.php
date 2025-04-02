@@ -314,12 +314,6 @@ class OrderController extends Controller
         }
     }
 
-    public function fetchAllDrivers(){
-        $drivers = User::where('role_id', 3)->get();
-        return $drivers;
-    }
-
-
     /**
      * Display the specified resource.
      */

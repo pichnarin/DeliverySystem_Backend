@@ -84,7 +84,6 @@ Route::middleware([AdminMiddleware::class])->group(function () {
         Route::get('/fetch-delivering-orders', [OrderController::class, 'fetchDeliveringOrders']);
         Route::get('/fetch-completed-orders', [OrderController::class, 'fetchCompletedOrders']);
         Route::get('/fetch-assigned-order-details', [OrderController::class, 'fetchDriveingOrderDetails']);
-        Route::get('/fetch-all-drivers',[OrderController::class,'fetchAllDrivers']);
         Route::get('/fetch-order-detail-by-id/{orderId}', [OrderController::class, 'fetchOrderDetailById']);
     });
 
