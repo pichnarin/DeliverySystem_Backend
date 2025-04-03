@@ -59,8 +59,7 @@ class FoodController extends Controller
         ], 200);
     }
 
-    public function updateFood(Request $request, $id)
-    {
+    public function updateFood(Request $request, $id){
         try {
             $food = Food::find($id);
             if (!$food) {
@@ -69,6 +68,7 @@ class FoodController extends Controller
                     'message' => 'Food not found!'
                 ], 404);
             }
+
             // Explicitly fetch form-data values
             $food->name = $request->input('name');
             $food->price = $request->input('price');    
@@ -76,25 +76,23 @@ class FoodController extends Controller
             $food->category_id = $request->input('category_id');
 
             // Check if a new image is uploaded
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('img')) {
                 // Validate the image
                 $request->validate([
-                    'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048' // Max 2MB
+                    'img' => 'image|mimes:jpeg,png,jpg,webp|max:2048' // Max 2MB
                 ]);
 
                 // Delete the old image if it exists
                 if ($food->image) {
-                    Storage::delete('public/assets/food_images/' . $food->image);
+                    Storage::delete(str_replace(asset('storage/'), 'public/', $food->image));
                 }
 
-                // Store the new image
-                $foodImgObj = $request->file('image');
-                $path = './assets/food_images';
-                $foodImg = time() . '_' . $foodImgObj->getClientOriginalName();
-                $foodImgObj->move($path, $foodImg);
+                // Store new image in "storage/app/public/images"
+                $image = $request->file('img');
+                $imagePath = $image->store('images', 'public'); 
 
-                // // Update the image field
-                $food->image = $foodImg;
+                // Store full image URL
+                $food->image = asset("storage/" . $imagePath);
             }
 
             // Save changes
@@ -114,6 +112,7 @@ class FoodController extends Controller
             ], 500);
         }
     }
+
 
     public function deleteFood(Request $request, $id)
     {
@@ -168,11 +167,15 @@ class FoodController extends Controller
     public function index()
     {
         $food = Food::all();
-        if ($food->isEmpty()) {
-            return response()->json([
-                'message' => 'Food not found!'
-            ], 404);
-        }
+
+        //Here I command the food->isEmpty because it could cause error for admin frontend 
+        //We should not return like that. Instead let front end handle by themself
+
+        // if ($food->isEmpty()) {
+        //     return response()->json([
+        //         'message' => 'Food not found!'
+        //     ], 404);
+        // }
 
         return response()->json([
             'message' => 'Food found!',

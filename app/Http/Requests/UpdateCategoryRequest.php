@@ -22,7 +22,8 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required','string','max:255','unique:categories,name'] . $this->category->id,
+            // 'name' => ['required','string','max:255','unique:categories,name'] . $this->category->id, -- old code that causes error when updating category on admin side
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $this->route('category')->id],
         ];
     }
 }
