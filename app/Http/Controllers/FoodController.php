@@ -168,11 +168,15 @@ class FoodController extends Controller
     public function index()
     {
         $food = Food::all();
-        if ($food->isEmpty()) {
-            return response()->json([
-                'message' => 'Food not found!'
-            ], 404);
-        }
+
+        //Here I command the food->isEmpty because it could cause error for admin frontend 
+        //We should not return like that. Instead let front end handle by themself
+
+        // if ($food->isEmpty()) {
+        //     return response()->json([
+        //         'message' => 'Food not found!'
+        //     ], 404);
+        // }
 
         return response()->json([
             'message' => 'Food found!',
