@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('driver_trackings', function (Blueprint $table) {
+        Schema::create('driver_tracking', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->id();
             $table->decimal('longitude', 10, 7)->nullable();

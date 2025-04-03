@@ -187,16 +187,16 @@ class OrderController extends Controller
     public function assignDriver(Request $request, $id)
     {
         DB::beginTransaction();
-    
+
         try {
             // Validate driver_id
             $request->validate([
                 'driver_id' => 'required|integer'
             ]);
-    
+
             // Find the order
             $order = Order::findOrFail($id);
-    
+
             // Order status check
             if ($order->status != 'accepted') {
                 return response()->json([
@@ -204,30 +204,30 @@ class OrderController extends Controller
                     'message' => 'Order status must be accepted before assigning a driver.'
                 ], 400);
             }
-    
+
             // Check if driver exists and has the correct role_id
             $driver = User::where('id', $request->driver_id)
                 ->where('role_id', 3) // Assuming 3 is the driver role_id
                 ->first();
-    
+
             if (!$driver) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Driver not found or not valid.'
                 ], 404);
             }
-    
+
             // Assign the driver
             $order->driver_id = $driver->id;
             $order->status = 'assigning'; // Update order status to 'assigning'
             $order->save();
-    
+
             // Commit the transaction
             DB::commit();
 
             //emit the order status to socket server
             $this->emitOrderStatus($order);
-    
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Driver assigned successfully.'
@@ -235,17 +235,17 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
             DB::rollBack();
-    
+
             // Log the error
             \Log::error('Error assigning driver: ' . $e->getMessage());
-    
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to assign driver: ' . $e->getMessage()
             ], 500);
         }
     }
-    
+
 
     public function fetchDriveingOrderDetails(Request $request)
     {
@@ -422,8 +422,8 @@ class OrderController extends Controller
     public function fetchCurrentCustomerOrder(Request $request)
     {
         try {
-            // Eager load orderDetails for ALL orders of user
-            $data = Order::with('orderDetails')
+            // Eager load orderDetails, driver, and address for all orders of the user
+            $data = Order::with(['orderDetails', 'driver', 'address']) // Add driver and address relationships
                 ->where('customer_id', $request->user()->id)
                 ->get();
 
@@ -441,6 +441,7 @@ class OrderController extends Controller
     }
 
 
+
     public function fetchOrderDetails(Request $request)
     {
         try {
@@ -452,6 +453,7 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
 
 
     // Driver fetch orders assigned by admin
@@ -473,7 +475,7 @@ class OrderController extends Controller
     }
 
 
-    //delivery orders
+    // Delivery orders
     public function DeliveringOrder(Request $request, $id)
     {
         DB::beginTransaction();
@@ -481,30 +483,51 @@ class OrderController extends Controller
         try {
 
             $validated = $request->validate([
-                'status' => 'required|in:delivering'
+                'status' => 'required|in:delivering',
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
             ]);
 
-
+            // Fetch the order
             $order = Order::findOrFail($id);
 
-            // Update status
+            // Update status action 1
             $order->status = $request->status;
             $order->save();
 
+            // Step 1: Record driver's initial tracking information (create or update)
+            $order->driverTracking()->updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'address_id' => $order->address_id,
+                    'driver_id' => $order->driver_id,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                ]
+            );
+
             DB::commit();
 
-            //emit order status to socket server
-            $this->emitOrderStatus($order);
+            // Emit order status to socket server for real-time updates
+            $this->emitDriver($order);
 
-            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to delivering successfully'], 200);
+            return response()->json([
+                'status' => 'success',
+                'order' => $order,
+                'message' => 'Order status updated to delivering and driver location tracked successfully'
+            ], 200);
 
         } catch (\Exception $e) {
 
             DB::rollBack();
 
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
+
 
     //update order status to completed
     public function CompletedOrder(Request $request, $id)
@@ -562,8 +585,6 @@ class OrderController extends Controller
         }
     }
 
-
-    //alert customer when admin accepted or declined order
     private function emitOrderStatus($order)
     {
         $client = new Client();
@@ -579,6 +600,27 @@ class OrderController extends Controller
             \Log::error('Error sending notification to Socket.IO server: ' . $e->getMessage());
         }
     }
+
+
+    private function emitDriver($order)
+    {
+        $client = new Client();
+        try {
+            // Send order status and driver's location (latitude, longitude) to Socket.IO server
+            $client->put('http://localhost:3000/order-status', [
+                'json' => [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'status' => $order->status,
+                    'driver_latitude' => $order->driverTracking->latitude, // Driver's latitude
+                    'driver_longitude' => $order->driverTracking->longitude, // Driver's longitude
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error sending notification to Socket.IO server: ' . $e->getMessage());
+        }
+    }
+
 
     public function fetchOrderDetailById(Request $request, $id)
     {
