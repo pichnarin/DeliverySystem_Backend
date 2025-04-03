@@ -53,7 +53,6 @@ class AddressController extends Controller
             $validated = $request->validate([
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
-                'street' => 'required|string|max:255',
                 'city' => 'required|string|max:255',
                 'state' => 'nullable|string|max:255',
                 'zip' => 'nullable|string|max:255',
@@ -64,7 +63,6 @@ class AddressController extends Controller
                 [
                     'latitude' => $validated['latitude'],
                     'longitude' => $validated['longitude'],
-                    'street' => $validated['street'],
                     'city' => $validated['city'],
                     'state' => $validated['state'],
                     'zip' => $validated['zip'],

@@ -16,11 +16,10 @@ return new class extends Migration
             $table->id();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
-            $table->string('reference');
-            $table->string('city');
-            $table->string('street');
-            $table->string('state');
-            $table->string('zip');
+            $table->string('reference')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('zip')->nullable();
 
             $table->foreignId('customer_id')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
 
