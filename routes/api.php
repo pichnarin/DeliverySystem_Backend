@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DriverTrackingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\DriverMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
@@ -59,6 +60,11 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
         Route::get('/', [FoodController::class, 'index']);
         Route::get('/find-food/{id}', [FoodController::class, 'searchFood']);
         Route::get('/fetch-by-category/{category}', [FoodController::class, 'fetchFoodsByCategory']);
+    });
+
+    Route::prefix('driverTracking')->group(function () {
+        Route::get('/fetch-driver-tracking/{order_id}', [DriverTrackingController::class, 'fetchDriverLocation']);
+        Route::get('/fetch-driver-tracking-and-customer-location/{order_id}', [DriverTrackingController::class, 'fetchDriverLocationAndCustomerLocation']);
     });
 
     Route::prefix('categories')->group(function (){

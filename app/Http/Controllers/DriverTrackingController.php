@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DriverTracking;
 use App\Http\Requests\StoreDriverTrackingRequest;
 use App\Http\Requests\UpdateDriverTrackingRequest;
+use App\Models\Order;
 
 class DriverTrackingController extends Controller
 {
@@ -92,13 +93,47 @@ class DriverTrackingController extends Controller
 
 
     //user get driver tracking of driver that is assigned to him
-    public function getDriverTrackingByDriverId($id)
+    public function fetchDriverLocation($id)
     {
         try{
-            $data = DriverTracking::where('driver_id', $id)->get();
+            $data = DriverTracking::where('order_id', $id)->get();
             return response()->json(['status' => 'success', 'data' => $data], 200);
         }catch (\Exception $e){
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+
+    public function fetchDriverLocationAndCustomerLocation($id)
+{
+    try {
+        $tracking = DriverTracking::where('order_id', $id)->first();
+
+        if (!$tracking) {
+            return response()->json(['status' => 'error', 'message' => 'Tracking data not found'], 404);
+        }
+
+        $order = Order::with('address')->find($id);
+
+        if (!$order || !$order->address) {
+            return response()->json(['status' => 'error', 'message' => 'Customer address not found'], 404);
+        }
+
+        $data = [
+            'driver_location' => [
+                'latitude' => $tracking->latitude,
+                'longitude' => $tracking->longitude,
+            ],
+            'customer_location' => [
+                'latitude' => $order->address->latitude,
+                'longitude' => $order->address->longitude,
+            ],
+        ];
+
+        return response()->json(['status' => 'success', 'data' => $data], 200);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    }
+}
+
 }

@@ -18,10 +18,10 @@ class Address extends Model
         'latitude',
         'longitude',
         'reference',
-        'street',
         'city',
         'state',
-        'zip'
+        'zip',
+        'place_name'
     ];
 
 

@@ -57,19 +57,57 @@ class AddressController extends Controller
                 'state' => 'nullable|string|max:255',
                 'zip' => 'nullable|string|max:255',
                 'reference' => 'nullable|string|max:255',
+                'place_name' => 'nullable|string|max:255',
             ]);
 
-            $address = Address::create(
+            // $address = Address::where('reference', $validated['reference'])
+            //     ->where('customer_id', $request->user()->id)
+            //     ->first();
+
+            // if ($address) {
+            //     $address = Address::create(
+            //         [
+            //             'latitude' => $validated['latitude'],
+            //             'longitude' => $validated['longitude'],
+            //             'city' => $validated['city'],
+            //             'state' => $validated['state'],
+            //             'zip' => $validated['zip'],
+            //             'reference' => $validated['reference'],
+            //             'place_name' => $validated['place_name'],
+            //             'customer_id' => $request->user()->id
+            //         ]
+            //     );
+            // }else{
+            //     $address = Address::update(
+            //         [
+            //             'latitude' => $validated['latitude'],
+            //             'longitude' => $validated['longitude'],
+            //             'city' => $validated['city'],
+            //             'state' => $validated['state'],
+            //             'zip' => $validated['zip'],
+            //             'reference' => $validated['reference'],
+            //             'place_name' => $validated['place_name'],
+            //             'customer_id' => $request->user()->id
+            //         ]
+            //     );
+            // }
+
+            $address = Address::updateOrCreate(
+                [
+                    'reference' => $validated['reference'],
+                    'customer_id' => $request->user()->id
+                ],
                 [
                     'latitude' => $validated['latitude'],
                     'longitude' => $validated['longitude'],
                     'city' => $validated['city'],
                     'state' => $validated['state'],
                     'zip' => $validated['zip'],
-                    'reference' => $validated['reference'],
-                    'customer_id' => $request->user()->id
+                    'place_name' => $validated['place_name']
                 ]
             );
+            
+
 
             DB::commit();
 
@@ -86,24 +124,24 @@ class AddressController extends Controller
 
 
     public function fetchCustomerAddresses(Request $request)
-{
-    try {
-        $user = JWTAuth::parseToken()->authenticate();
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'User not authenticated'], 401);
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            if (!$user) {
+                return response()->json(['status' => 'error', 'message' => 'User not authenticated'], 401);
+            }
+
+            // Manually build the query
+            DB::enableQueryLog();
+            $addresses = Address::query()->whereRaw('customer_id = ?', [$user->id])->get();
+
+            \Log::info('SQL Query:', DB::getQueryLog());
+
+            return response()->json(['status' => 'success', 'data' => $addresses], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        // Manually build the query
-        DB::enableQueryLog();
-        $addresses = Address::query()->whereRaw('customer_id = ?', [$user->id])->get();
-
-        \Log::info('SQL Query:', DB::getQueryLog());
-
-        return response()->json(['status' => 'success', 'data' => $addresses], 200);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
-}
 
 
 
