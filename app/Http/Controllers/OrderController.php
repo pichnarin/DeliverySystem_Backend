@@ -535,31 +535,72 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-
-            $validated = $request->validate([
-                'status' => 'required|in:completed'
-            ]);
-
             $order = Order::findOrFail($id);
 
-            // Update status
-            $order->status = $request->status;
+            // Set status to 'completed' automatically
+            $order->status = 'completed';
             $order->save();
 
             DB::commit();
 
-            //emit the order status to socket server
+            // Emit the order status to socket server
             $this->emitOrderStatus($order);
 
-            return response()->json(['status' => 'success', 'order' => $order, 'message' => 'Order status updated to completed successfully'], 200);
+            return response()->json([
+                'status' => 'success',
+                'order' => $order,
+                'message' => 'Order status updated to completed successfully'
+            ], 200);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    // Fetch Delivering Orders
+    public function fetchDriverDeliveringOrders(Request $request)
+    {
+        try {
+            $orders = Order::with('orderDetails', 'customer', 'address')
+                ->where('driver_id', $request->user()->id)
+                ->where('status', 'delivering') // Filter for delivering status
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json(['status' => 'success', 'data' => []], 200);
+            }
+
+            return response()->json(['status' => 'success', 'data' => $orders], 200);
+        } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+    // Fetch Completed Orders
+    public function fetchDriverCompletedOrder(Request $request)
+    {
+        try {
+            $orders = Order::with('orderDetails', 'customer', 'address')
+                ->where('driver_id', $request->user()->id)
+                ->where('status', 'completed') // Filter for completed status
+                ->get();
+
+            if ($orders->isEmpty()) {
+                return response()->json(['status' => 'success', 'data' => []], 200);
+            }
+
+            return response()->json(['status' => 'success', 'data' => $orders], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
 
 
 

@@ -64,7 +64,8 @@ Route::middleware([CustomerMiddleware::class])->group(function () {
 
     Route::prefix('driverTracking')->group(function () {
         Route::get('/fetch-driver-tracking/{order_id}', [DriverTrackingController::class, 'fetchDriverLocation']);
-        Route::get('/fetch-driver-tracking-and-customer-location/{order_id}', [DriverTrackingController::class, 'fetchDriverLocationAndCustomerLocation']);
+        Route::get('/fetch-driver-tracking/{order_id}', [DriverTrackingController::class, 'fetchDriverLocationAndCustomerLocation']);
+        // Route::put('/update-location/{order_id}', [DriverTrackingController::class, 'updateDriverLocation']);
     });
 
     Route::prefix('categories')->group(function (){
@@ -80,6 +81,14 @@ Route::middleware([DriverMiddleware::class])->group(function () {
         Route::put('/accept-delivering/{orderId}', [OrderController::class, 'DeliveringOrder']);
         Route::put('/complete/{orderId}', [OrderController::class, 'CompletedOrder']);
         Route::get('/fetch-delivery-history', [OrderController::class, 'fetchDeliveringHistory']);
+        Route::get('/fetch-delivering-order-history', [OrderController::class, 'fetchDriverDeliveringOrders']);
+        Route::get('/fetch-completed-order-history', [OrderController::class, 'fetchDriverCompletedOrder']);
+    });
+
+    Route::prefix('driverTracking')->group(function () {
+        Route::get('/fetch-customer-tracking/{order_id}', [DriverTrackingController::class, 'fetchDriverLocationAndCustomerLocation']);
+        Route::patch('/update-location/{order_id}', [DriverTrackingController::class, 'updateDriverLocation']);
+
     });
 });
 
